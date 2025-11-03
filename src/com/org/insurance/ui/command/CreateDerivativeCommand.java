@@ -2,20 +2,22 @@ package com.org.insurance.ui.command;
 
 import com.org.insurance.domain.Derivative;
 import com.org.insurance.ui.InsuranceMenu;
-import java.util.List;
+import com.org.insurance.ui.Inputs;
+
+import java.util.Scanner;
 
 public class CreateDerivativeCommand implements Command {
-    @Override
-    public String getDescription() {
-        return "Create new derivative";
-    }
+    private final InsuranceMenu menu;
+    public CreateDerivativeCommand(InsuranceMenu menu) { this.menu = menu; }
+
+    @Override public String getDescription() { return "Create new derivative"; }
 
     @Override
-    public void execute(List<Derivative> derivatives) {
-        System.out.print("Enter derivative name: ");
-        String name = InsuranceMenu.scanner.nextLine();
-        Derivative derivative = new Derivative(name);
-        derivatives.add(derivative);
-        System.out.println("Derivative created: " + name);
+    public void execute(Scanner sc) {
+        String name = Inputs.nextLine(sc, "Name: ");
+        Derivative d = new Derivative(name);
+        menu.addDerivative(d);
+        menu.setSelected(d);
+        System.out.println("Created & selected: " + name);
     }
 }

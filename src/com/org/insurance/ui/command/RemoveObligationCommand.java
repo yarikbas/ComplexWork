@@ -3,50 +3,36 @@ package com.org.insurance.ui.command;
 import com.org.insurance.domain.Derivative;
 import com.org.insurance.domain.Obligation;
 import com.org.insurance.ui.InsuranceMenu;
+import com.org.insurance.ui.Inputs;
+
 import java.util.List;
+import java.util.Scanner;
+import java.util.UUID;
 
 public class RemoveObligationCommand implements Command {
-    @Override
-    public String getDescription() {
-        return "Remove obligation from derivative";
-    }
+    private final InsuranceMenu menu;
+    public RemoveObligationCommand(InsuranceMenu menu) { this.menu = menu; }
+
+    @Override public String getDescription() { return "Remove obligation from selected derivative"; }
 
     @Override
-    public void execute(List<Derivative> derivatives) {
-        if (derivatives.isEmpty()) {
-            System.out.println("No derivatives available.");
-            return;
+    public void execute(Scanner sc) {
+        Derivative d = menu.getSelected();
+        if (d == null) { System.out.println("No selected derivative."); return; }
+        List<Obligation> list = d.getItems();
+        if (list.isEmpty()) { System.out.println("No obligations."); return; }
+        for (int i = 0; i < list.size(); i++) {
+            System.out.println(i + ": " + list.get(i).getName() + " | id=" + list.get(i).getId());
         }
-
-        System.out.println("Select derivative:");
-        for (int i = 0; i < derivatives.size(); i++) {
-            System.out.println(i + ". " + derivatives.get(i).getName());
-        }
-
-        System.out.print("Enter derivative number: ");
-        int derivChoice = InsuranceMenu.scanner.nextInt();
-        Derivative selectedDerivative = derivatives.get(derivChoice);
-
-        List<Obligation> obligations = selectedDerivative.getItems();
-        if (obligations.isEmpty()) {
-            System.out.println("No obligations in selected derivative!");
-            return;
-        }
-
-        System.out.println("Obligations in " + selectedDerivative.getName() + ":");
-        for (int i = 0; i < obligations.size(); i++) {
-            System.out.println(i + ". " + obligations.get(i).getName());
-        }
-
-        System.out.print("Enter obligation number to remove: ");
-        int obligChoice = InsuranceMenu.scanner.nextInt();
-
-        if (obligChoice >= 0 && obligChoice < obligations.size()) {
-            Obligation removed = obligations.get(obligChoice);
-            selectedDerivative.removeObligation(removed.getId());
-            System.out.println("Removed: " + removed.getName());
+        int mode = Inputs.nextInt(sc, "1) by index  2) by UUID : ", 1, 2);
+        boolean ok = false;
+        if (mode == 1) {
+            int idx = Inputs.nextInt(sc, "index: ", 0, list.size() - 1);
+            ok = d.remove(list.get(idx).getId());
         } else {
-            System.out.println("Invalid selection!");
+            String s = Inputs.nextLine(sc, "uuid: ");
+            try { ok = d.remove(UUID.fromString(s.trim())); } catch (IllegalArgumentException ignored) {}
         }
+        System.out.println(ok ? "Removed." : "Not found.");
     }
 }

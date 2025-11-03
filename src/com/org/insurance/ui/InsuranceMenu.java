@@ -1,80 +1,45 @@
 package com.org.insurance.ui;
 
-import com.org.insurance.ui.command.*;
 import com.org.insurance.domain.Derivative;
+import com.org.insurance.ui.command.Command;
+
 import java.util.*;
 
 public class InsuranceMenu {
-    public static Scanner scanner = new Scanner(System.in);
-    private Map<String, Command> commands;
-    private List<Derivative> derivatives;
+    private final List<Derivative> derivatives = new ArrayList<Derivative>();
+    private final Map<String, Command> commands = new LinkedHashMap<String, Command>();
+    private final Scanner in = new Scanner(System.in).useLocale(Locale.US);
+    private boolean running = false;
+    private Derivative selected;
 
-    public InsuranceMenu() {
-        this.commands = new HashMap<>();
-        this.derivatives = new ArrayList<>();
-        registerCommands();
-    }
-
-    private void registerCommands() {
-        registerCommand("create", new CreateDerivativeCommand());
-        registerCommand("edit", new EditDerivativeCommand());
-        registerCommand("show", new ShowDerivativesCommand());
-        registerCommand("add", new AddObligationCommand());
-        registerCommand("remove", new RemoveObligationCommand());
-        registerCommand("calculate", new CalculateCommand());
-        registerCommand("sort", new SortByRiskCommand());
-        registerCommand("find", new FindObligationCommand());
-        registerCommand("delete", new DeleteDerivativeCommand());
-        registerCommand("save", new SaveToFileCommand());
-        registerCommand("load", new LoadFromFileCommand());
-    }
-
-    public void registerCommand(String name, Command command) {
-        commands.put(name, command);
-    }
-
-    public void executeCommand(String input) {
-        Command command = commands.get(input);
-        if (command != null) {
-            command.execute(derivatives);
-        } else {
-            System.out.println("Unknown command: " + input);
-        }
-    }
+    public void register(String name, Command cmd) { commands.put(name, cmd); }
 
     public void run() {
-        System.out.println("=== Insurance Management System ===");
-        System.out.println("Type 'help' for commands, 'exit' to quit");
-
-        while (true) {
+        running = true;
+        System.out.println("Insurance CLI (type 'help' or 'exit')");
+        while (running) {
             System.out.print("> ");
-            String input = scanner.nextLine().trim();
-
-            if ("exit".equalsIgnoreCase(input)) {
-                exit();
-                break;
-            } else if ("help".equalsIgnoreCase(input)) {
-                showHelp();
-            } else {
-                executeCommand(input);
-            }
+            String cmd = in.nextLine().trim();
+            if ("exit".equalsIgnoreCase(cmd)) { exit(); continue; }
+            if ("help".equalsIgnoreCase(cmd)) { showHelp(); continue; }
+            Command c = commands.get(cmd);
+            if (c == null) { System.out.println("Unknown command: " + cmd); continue; }
+            try { c.execute(in); } catch (Exception e) { System.out.println("Error: " + e.getMessage()); }
         }
     }
 
-    private void showHelp() {
-        System.out.println("Available commands:");
-        commands.forEach((key, cmd) ->
-                System.out.println("  " + key + " - " + cmd.getDescription()));
-        System.out.println("  help - Show this help");
-        System.out.println("  exit - Exit program");
+    public void showHelp() {
+        System.out.println("Commands:");
+        for (Map.Entry<String, Command> e : commands.entrySet()) {
+            System.out.println(" - " + e.getKey() + " : " + e.getValue().getDescription());
+        }
     }
+    public void exit() { running = false; }
 
-    private void exit() {
-        System.out.println("Goodbye!");
-        scanner.close();
-    }
-
-    public List<Derivative> getDerivatives() {
-        return derivatives;
-    }
+    // helpers
+    public List<Derivative> getDerivatives() { return derivatives; }
+    public Derivative getSelected() { return selected; }
+    public void setSelected(Derivative d) { this.selected = d; }
+    public void addDerivative(Derivative d) { if (d != null) derivatives.add(d); }
+    public Scanner getScanner() { return in; }
 }

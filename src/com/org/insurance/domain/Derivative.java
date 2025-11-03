@@ -1,76 +1,80 @@
 package com.org.insurance.domain;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 import java.io.Serializable;
 import java.util.*;
-import java.util.function.Predicate;
 
-@Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Derivative implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-    @EqualsAndHashCode.Include
     private final UUID id = UUID.randomUUID();
-
     private String name;
-    private final List<Obligation> items = new ArrayList<>();
+    private final List<Obligation> items = new ArrayList<Obligation>();
 
-    public Derivative(String name) { this.name = name; }
+    public Derivative() {}
+    public Derivative(String name) { this.name = name == null ? "" : name.trim(); }
 
-    public void add(Obligation o) {
-        if (o != null) items.add(o);
-    }
+    public UUID getId() { return id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name == null ? "" : name.trim(); }
 
+    public void add(Obligation o) { if (o != null) items.add(o); }
+
+    /** Видалити зобовʼязання за UUID. */
     public boolean remove(UUID obligationId) {
-        Iterator<Obligation> it = items.iterator();
-        while (it.hasNext()) {
+        if (obligationId == null) return false;
+        for (Iterator<Obligation> it = items.iterator(); it.hasNext(); ) {
             Obligation o = it.next();
-            if (Objects.equals(o.getId(), obligationId)) {
-                it.remove();
-                return true;
-            }
+            if (obligationId.equals(o.getId())) { it.remove(); return true; }
         }
         return false;
     }
 
-    /** Повертаємо немодифікований вигляд, щоб не ламали інваріанти */
-    public List<Obligation> getItems() {
-        return Collections.unmodifiableList(items);
-    }
+    public List<Obligation> getItems() { return Collections.unmodifiableList(items); }
 
     public double getTotalValue() {
         double sum = 0.0;
-        for (Obligation o : items) {
-            sum += o.calculateValue();
-        }
+        for (int i = 0; i < items.size(); i++) sum += items.get(i).calculateValue();
         return sum;
     }
-
     public double getTotalRisk() {
         double sum = 0.0;
-        for (Obligation o : items) {
-            sum += o.calculateRisk();
-        }
+        for (int i = 0; i < items.size(); i++) sum += items.get(i).calculateRisk();
         return sum;
     }
 
     public List<Obligation> sortedByRiskDesc() {
-        List<Obligation> copy = new ArrayList<>(items);
+        List<Obligation> copy = new ArrayList<Obligation>(items);
         Collections.sort(copy, new RiskComparator());
         return copy;
     }
 
-    public void sortByRiskDescInPlace() {
-        Collections.sort(items, new RiskComparator());
-    }
+    /** Пошук у межах діапазонів; -1 означає «не обмежувати». */
+    public List<Obligation> findByRanges(
+            Double minAmount, Double maxAmount,
+            Double minRisk,   Double maxRisk,
+            Double minValue,  Double maxValue
+    ) {
+        final double EPS = 1e-9;
+        List<Obligation> out = new ArrayList<Obligation>();
+        for (int i = 0; i < items.size(); i++) {
+            Obligation o = items.get(i);
+            double amount = o.getInsuredAmount();
+            double risk   = o.calculateRisk();
+            double value  = o.calculateValue();
 
-    public List<Obligation> findBy(Predicate<Obligation> p) {
-        List<Obligation> out = new ArrayList<>();
-        for (Obligation o : items) {
-            if (p.test(o)) out.add(o);
+            if (minAmount != null && minAmount >= 0 && amount + EPS < minAmount) continue;
+            if (maxAmount != null && maxAmount >= 0 && amount > maxAmount + EPS) continue;
+            if (minRisk   != null && minRisk   >= 0 && risk   + EPS < minRisk) continue;
+            if (maxRisk   != null && maxRisk   >= 0 && risk   > maxRisk + EPS) continue;
+            if (minValue  != null && minValue  >= 0 && value  + EPS < minValue) continue;
+            if (maxValue  != null && maxValue  >= 0 && value  > maxValue + EPS) continue;
+
+            out.add(o);
         }
         return out;
+    }
+
+    @Override public String toString() {
+        return "Derivative{" + name + ", items=" + items.size() + "}";
     }
 }

@@ -3,26 +3,23 @@ package com.org.insurance.ui.command;
 import com.org.insurance.domain.Derivative;
 import com.org.insurance.io.FileManager;
 import com.org.insurance.ui.InsuranceMenu;
-import java.util.List;
+import com.org.insurance.ui.Inputs;
+
+import java.util.Scanner;
 
 public class LoadFromFileCommand implements Command {
-    @Override
-    public String getDescription() {
-        return "Load derivatives from file";
-    }
+    private final InsuranceMenu menu;
+    private final FileManager fm = new FileManager();
+    public LoadFromFileCommand(InsuranceMenu menu) { this.menu = menu; }
+
+    @Override public String getDescription() { return "Load derivative from file and select it"; }
 
     @Override
-    public void execute(List<Derivative> derivatives) {
-        System.out.print("Enter file path: ");
-        String path = InsuranceMenu.scanner.nextLine();
-
-        FileManager fileManager = new FileManager();
-        List<Derivative> loaded = fileManager.loadFromFile(path);
-
-        if (loaded != null) {
-            derivatives.clear();
-            derivatives.addAll(loaded);
-            System.out.println("Loaded " + loaded.size() + " derivatives");
-        }
+    public void execute(Scanner sc) {
+        String file = Inputs.nextLine(sc, "Filename: ");
+        Derivative d = fm.loadDerivative(file.trim());
+        menu.addDerivative(d);
+        menu.setSelected(d);
+        System.out.println("Loaded & selected: " + d.getName());
     }
 }

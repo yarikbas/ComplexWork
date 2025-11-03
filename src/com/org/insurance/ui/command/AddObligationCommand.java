@@ -2,173 +2,50 @@ package com.org.insurance.ui.command;
 
 import com.org.insurance.domain.*;
 import com.org.insurance.ui.InsuranceMenu;
-import java.util.List;
+import com.org.insurance.ui.Inputs;
+
+import java.util.Scanner;
 
 public class AddObligationCommand implements Command {
-    @Override
-    public String getDescription() {
-        return "Add obligation to derivative";
-    }
+    private final InsuranceMenu menu;
+    public AddObligationCommand(InsuranceMenu menu) { this.menu = menu; }
+
+    @Override public String getDescription() { return "Add obligation to selected derivative"; }
 
     @Override
-    public void execute(List<Derivative> derivatives) {
-        if (derivatives.isEmpty()) {
-            System.out.println("No derivatives available. Create one first.");
-            return;
+    public void execute(Scanner sc) {
+        Derivative d = menu.getSelected();
+        if (d == null) { System.out.println("No selected derivative."); return; }
+
+        System.out.println("Type: 1-Auto 2-Life 3-Health");
+        int t = Inputs.nextInt(sc, ">", 1, 3);
+
+        String name = Inputs.nextLine(sc, "name: ");
+        double insured = Inputs.nextDouble(sc, "insuredAmount: ", 0.0, null);
+        double factor  = Inputs.nextDouble(sc, "factor (>0): ", 0.0000001, null);
+        int period     = Inputs.nextInt(sc, "period (>0): ", 1, null);
+        double rate    = Inputs.nextDouble(sc, "interestRate (>=0): ", 0.0, null);
+        double p       = Inputs.nextDouble(sc, "probability [0..1]: ", 0.0, 1.0);
+        double maxCost = Inputs.nextDouble(sc, "maxCost (>=0): ", 0.0, null);
+
+        Obligation o;
+        if (t == 1) {
+            String vt = Inputs.nextLine(sc, "vehicleType: ");
+            String dc = Inputs.nextLine(sc, "driverClass (A/B/C): ");
+            double bm = Inputs.nextDouble(sc, "bonusMalus (>0): ", 0.0000001, null);
+            o = new AutoObligation(name, insured, factor, period, rate, p, maxCost, vt, dc, bm);
+        } else if (t == 2) {
+            int age  = Inputs.nextInt(sc, "age (>0): ", 1, null);
+            int term = Inputs.nextInt(sc, "termYears (>0): ", 1, null);
+            o = new LifeObligation(name, insured, factor, period, rate, p, maxCost, age, term);
+        } else {
+            String ct = Inputs.nextLine(sc, "coverageType: ");
+            boolean pre = Inputs.nextBoolean(sc, "preExistingConditions");
+            double lim = Inputs.nextDouble(sc, "annualLimit (>0): ", 0.0000001, null);
+            o = new HealthObligation(name, insured, factor, period, rate, p, maxCost, ct, pre, lim);
         }
 
-        System.out.println("Select derivative:");
-        for (int i = 0; i < derivatives.size(); i++) {
-            System.out.println(i + ". " + derivatives.get(i).getName());
-        }
-
-        System.out.print("Enter derivative number: ");
-        int derivChoice = InsuranceMenu.scanner.nextInt();
-        Derivative selectedDerivative = derivatives.get(derivChoice);
-
-        Obligation obligation = createObligation();
-        selectedDerivative.addObligation(obligation);
-        System.out.println("Obligation added to " + selectedDerivative.getName());
-    }
-
-    private Obligation createObligation() {
-        System.out.println("Select obligation type:");
-        System.out.println("1. Business");
-        System.out.println("2. Travel");
-        System.out.println("3. Property");
-        System.out.println("4. Auto");
-        System.out.println("5. Life");
-        System.out.println("6. Health");
-        System.out.println("7. Liability");
-
-        System.out.print("Enter type number: ");
-        int typeChoice = InsuranceMenu.scanner.nextInt();
-
-        System.out.print("Enter obligation name: ");
-        String name = InsuranceMenu.scanner.nextLine();
-
-        System.out.print("Enter insured amount: ");
-        double amount = InsuranceMenu.scanner.nextFloat();
-
-        System.out.print("Enter factor: ");
-        double factor = InsuranceMenu.scanner.nextFloat();
-
-        System.out.print("Enter period (years): ");
-        int period = InsuranceMenu.scanner.nextInt();
-
-        System.out.print("Enter interest rate: ");
-        double interestRate = InsuranceMenu.scanner.nextFloat();
-
-        System.out.print("Enter probability: ");
-        double probability = InsuranceMenu.scanner.nextFloat();
-
-        System.out.print("Enter max cost: ");
-        double maxCost = InsuranceMenu.scanner.nextFloat();
-
-        switch (typeChoice) {
-            case 1:
-                return createBusinessObligation(name, amount, factor, period, interestRate, probability, maxCost);
-            case 2:
-                return createTravelObligation(name, amount, factor, period, interestRate, probability, maxCost);
-            case 3:
-                return createPropertyObligation(name, amount, factor, period, interestRate, probability, maxCost);
-            case 4:
-                return createAutoObligation(name, amount, factor, period, interestRate, probability, maxCost);
-            case 5:
-                return createLifeObligation(name, amount, factor, period, interestRate, probability, maxCost);
-            case 6:
-                return createHealthObligation(name, amount, factor, period, interestRate, probability, maxCost);
-            case 7:
-                return createLiabilityObligation(name, amount, factor, period, interestRate, probability, maxCost);
-            default:
-                throw new IllegalArgumentException("Unknown obligation type");
-        }
-    }
-
-    private BusinessObligation createBusinessObligation(String name, double amount, double factor, int period,
-                                                        double interestRate, double probability, double maxCost) {
-        System.out.print("Enter business type: ");
-        String businessType = InsuranceMenu.scanner.nextLine();
-        System.out.print("Enter revenue: ");
-        double revenue = InsuranceMenu.scanner.nextDouble();
-        System.out.print("Enter employee count: ");
-        int employees = InsuranceMenu.scanner.nextInt();
-
-        return new BusinessObligation(name, amount, factor, period, interestRate, probability, maxCost,
-                businessType, revenue, employees);
-    }
-
-    private TravelObligation createTravelObligation(String name, double amount, double factor, int period,
-                                                    double interestRate, double probability, double maxCost) {
-        System.out.print("Enter trip days: ");
-        int days = InsuranceMenu.scanner.nextInt();
-        System.out.print("Enter destination: ");
-        String destination = InsuranceMenu.scanner.nextLine();
-        System.out.print("Enter purpose: ");
-        String purpose = InsuranceMenu.scanner.nextLine();
-
-        return new TravelObligation(name, amount, factor, period, interestRate, probability, maxCost,
-                days, destination, purpose);
-    }
-
-    private PropertyObligation createPropertyObligation(String name, double amount, double factor, int period,
-                                                        double interestRate, double probability, double maxCost) {
-        System.out.print("Enter location: ");
-        String location = InsuranceMenu.scanner.nextLine();
-        System.out.print("Enter deductible: ");
-        double deductible = InsuranceMenu.scanner.nextFloat();
-        System.out.print("Enter construction type: ");
-        String constructionType = InsuranceMenu.scanner.nextLine();
-
-        return new PropertyObligation(name, amount, factor, period, interestRate, probability, maxCost,
-                location, deductible, constructionType);
-    }
-
-    private AutoObligation createAutoObligation(String name, double amount, double factor, int period,
-                                                double interestRate, double probability, double maxCost) {
-        System.out.print("Enter vehicle type: ");
-        String vehicleType = InsuranceMenu.scanner.nextLine();
-        System.out.print("Enter driver class: ");
-        String driverClass = InsuranceMenu.scanner.nextLine();
-        System.out.print("Enter bonus malus: ");
-        double bonusMalus = InsuranceMenu.scanner.nextFloat();
-
-        return new AutoObligation(name, amount, factor, period, interestRate, probability, maxCost,
-                vehicleType, driverClass, bonusMalus);
-    }
-
-    private LifeObligation createLifeObligation(String name, double amount, double factor, int period,
-                                                double interestRate, double probability, double maxCost) {
-        System.out.print("Enter age: ");
-        int age = InsuranceMenu.scanner.nextInt();
-        System.out.print("Enter term years: ");
-        int termYears = InsuranceMenu.scanner.nextInt();
-
-        return new LifeObligation(name, amount, factor, period, interestRate, probability, maxCost,
-                age, termYears);
-    }
-
-    private HealthObligation createHealthObligation(String name, double amount, double factor, int period,
-                                                    double interestRate, double probability, double maxCost) {
-        System.out.print("Enter coverage type: ");
-        String coverageType = InsuranceMenu.scanner.nextLine();
-        System.out.print("Has pre-existing conditions? (true/false): ");
-        boolean hasConditions = Boolean.parseBoolean(InsuranceMenu.scanner.nextLine());
-        System.out.print("Enter annual limit: ");
-        double annualLimit = InsuranceMenu.scanner.nextFloat();
-
-        return new HealthObligation(name, amount, factor, period, interestRate, probability, maxCost,
-                coverageType, hasConditions, annualLimit);
-    }
-
-    private LiabilityObligation createLiabilityObligation(String name, double amount, double factor, int period,
-                                                          double interestRate, double probability, double maxCost) {
-        System.out.print("Enter limit per claim: ");
-        double limitPerClaim = InsuranceMenu.scanner.nextFloat();
-        System.out.print("Enter aggregate limit: ");
-        double aggregateLimit = InsuranceMenu.scanner.nextFloat();
-
-        return new LiabilityObligation(name, amount, factor, period, interestRate, probability, maxCost,
-                limitPerClaim, aggregateLimit);
+        d.add(o);
+        System.out.println("Added: " + o.getName());
     }
 }

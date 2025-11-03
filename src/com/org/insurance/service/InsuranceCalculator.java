@@ -7,21 +7,21 @@ public class InsuranceCalculator {
 
     public double calculatePortfolioValue(Derivative d) {
         double sum = 0.0;
-        for (Obligation o : d.getItems()) {
-            sum += o.calculateValue();
+        for (int i = 0; i < d.getItems().size(); i++) {
+            sum += d.getItems().get(i).calculateValue();
         }
         return sum;
     }
 
     public double calculateTotalRisk(Derivative d) {
         double sum = 0.0;
-        for (Obligation o : d.getItems()) {
-            sum += o.calculateRisk();
+        for (int i = 0; i < d.getItems().size(); i++) {
+            sum += d.getItems().get(i).calculateRisk();
         }
         return sum;
     }
 
     public double calculatePriceOfService(Obligation o) {
-        return o.calculatePayout();
+        return o.calculatePayout(); // базово
     }
 }
