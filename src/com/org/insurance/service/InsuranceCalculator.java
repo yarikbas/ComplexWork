@@ -1,4 +1,3 @@
-// com/org/insurance/service/InsuranceCalculator.java
 package com.org.insurance.service;
 
 import com.org.insurance.domain.Derivative;
