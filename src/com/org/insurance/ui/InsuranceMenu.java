@@ -7,14 +7,12 @@ import java.util.*;
 
 public class InsuranceMenu {
 
-    // --- поля ---
     private final List<Derivative> derivatives;
     private final Scanner in;
     private final Map<String, Command> commands;
 
     private boolean running;
 
-    // --- конструктор: реєструємо команди ---
     public InsuranceMenu() {
         this.derivatives = new ArrayList<>();
         this.in = new Scanner(System.in);
@@ -22,7 +20,6 @@ public class InsuranceMenu {
         registerBuiltInCommands();
     }
 
-    // --- API ---
     public void run() {
         running = true;
         System.out.println("Введіть 'help' для списку команд, 'exit' — щоб вийти.");
@@ -101,7 +98,6 @@ public class InsuranceMenu {
         return derivatives.get(idx - 1);
     }
 
-    // --- приватне ---
     private void registerBuiltInCommands() {
         registerCommand("add",    new AddObligationCommand());
         registerCommand("calc",   new CalculateCommand());

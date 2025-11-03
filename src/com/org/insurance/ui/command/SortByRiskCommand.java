@@ -2,40 +2,60 @@ package com.org.insurance.ui.command;
 
 import com.org.insurance.domain.Derivative;
 import com.org.insurance.domain.Obligation;
+import com.org.insurance.service.RiskComparator;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 
 public class SortByRiskCommand implements Command {
-    @Override public String getDescription() { return "Сортувати облігації у деривативі за зменшенням ризику"; }
+    @Override
+    public String getDescription() {
+        return "Сортувати облігації у деривативі за зменшенням ризику (через RiskComparator)";
+    }
 
     @Override
     public void execute(Scanner in, List<Derivative> derivatives) {
         Derivative d = pickDerivative(in, derivatives);
         if (d == null) return;
-        var obs = d.getObligations();
-        if (obs.isEmpty()) { System.out.println("Порожньо."); return; }
 
-        obs.sort(Comparator.comparingDouble(SortByRiskCommand::risk).reversed());
+        var obs = d.getObligations();
+        if (obs == null || obs.isEmpty()) {
+            System.out.println("Порожньо.");
+            return;
+        }
+
+        var cmp = new RiskComparator();
+        obs.sort(cmp.reversed()); // за зменшенням ризику
 
         System.out.println("Відсортовано (risk ↓):");
-        for (int i=0;i<obs.size();i++) {
-            var o = obs.get(i);
-            System.out.printf("%2d) %-20s  risk=%.6f%n", i+1, o.getName()!=null?o.getName():"—", risk(o));
+        for (int i = 0; i < obs.size(); i++) {
+            Obligation o = obs.get(i);
+            double r = RiskComparator.riskScore(o);
+            System.out.printf("%2d) %-20s  risk=%.6f%n",
+                    i + 1,
+                    o.getName() != null ? o.getName() : "—",
+                    r);
         }
     }
 
-    private static double risk(Obligation o) {
-        return o.getProbability() * o.getFactor() * o.getInsuredAmount();
+    private Derivative pickDerivative(Scanner in, List<Derivative> list) {
+        if (list == null || list.isEmpty()) {
+            System.out.println("Немає деривативів.");
+            return null;
+        }
+        for (int i = 0; i < list.size(); i++) {
+            System.out.printf("%d) %s%n", i + 1, nameOf(list.get(i)));
+        }
+        System.out.print("> №: ");
+        try {
+            int idx = Integer.parseInt(in.nextLine().trim());
+            return (idx >= 1 && idx <= list.size()) ? list.get(idx - 1) : null;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
-    private Derivative pickDerivative(Scanner in, List<Derivative> list) {
-        if (list.isEmpty()) { System.out.println("Немає деривативів."); return null; }
-        for (int i=0;i<list.size();i++) System.out.printf("%d) %s%n", i+1, nameOf(list.get(i)));
-        System.out.print("> №: ");
-        try { int idx=Integer.parseInt(in.nextLine().trim()); return (idx>=1&&idx<=list.size())?list.get(idx-1):null; }
-        catch (Exception e){ return null; }
+    private static String nameOf(Derivative d) {
+        return d.getName() != null ? d.getName() : "без назви";
     }
-    private static String nameOf(Derivative d){ return d.getName()!=null?d.getName():"без назви"; }
 }
