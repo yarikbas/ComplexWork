@@ -1,40 +1,18 @@
 package com.org.insurance.domain;
 
+import java.time.LocalDate;
+
 public class LifeObligation extends Obligation {
-    private static final long serialVersionUID = 1L;
+    private String insuredPersonId;
+    private LocalDate dateOfBirth;
+    private String beneficiaryName;
 
-    private int age;
-    private int termYears;
+    public String getInsuredPersonId() { return insuredPersonId; }
+    public void setInsuredPersonId(String insuredPersonId) { this.insuredPersonId = insuredPersonId; }
 
-    public LifeObligation() {}
+    public LocalDate getDateOfBirth() { return dateOfBirth; }
+    public void setDateOfBirth(LocalDate dateOfBirth) { this.dateOfBirth = dateOfBirth; }
 
-    public LifeObligation(String name, double insuredAmount, double factor,
-                          int period, double interestRate, double probability, double maxCost,
-                          int age, int termYears) {
-        super(name, insuredAmount, factor, period, interestRate, probability, maxCost);
-        setAge(age);
-        setTermYears(termYears);
-    }
-
-    @Override public double calculatePayout() {
-        return getInsuredAmount() * getProbability();
-    }
-    @Override public double calculateRisk() {
-        double k = (age <= 35) ? 0.8 : (age <= 55) ? 1.0 : 1.3;
-        return (1.0 - getProbability()) * getFactor() * k;
-    }
-    @Override public double calculateValue() {
-        return getInsuredAmount() * getInterestRate() * Math.max(1, termYears);
-    }
-
-    public int getAge() { return age; }
-    public final void setAge(int v) {
-        if (v <= 0) throw new IllegalArgumentException("age must be > 0");
-        this.age = v;
-    }
-    public int getTermYears() { return termYears; }
-    public final void setTermYears(int v) {
-        if (v <= 0) throw new IllegalArgumentException("termYears must be > 0");
-        this.termYears = v;
-    }
+    public String getBeneficiaryName() { return beneficiaryName; }
+    public void setBeneficiaryName(String beneficiaryName) { this.beneficiaryName = beneficiaryName; }
 }

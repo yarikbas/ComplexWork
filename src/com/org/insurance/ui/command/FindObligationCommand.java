@@ -1,36 +1,19 @@
 package com.org.insurance.ui.command;
 
-import com.org.insurance.domain.Derivative;
-import com.org.insurance.domain.Obligation;
-import com.org.insurance.ui.InsuranceMenu;
-import com.org.insurance.ui.Inputs;
-
-import java.util.List;
-import java.util.Scanner;
+import java.util.UUID;
 
 public class FindObligationCommand implements Command {
-    private final InsuranceMenu menu;
-    public FindObligationCommand(InsuranceMenu menu) { this.menu = menu; }
+    private UUID derivativeId;
+    private String name; // пошук за назвою
 
-    @Override public String getDescription() { return "Find obligations by ranges (amount/risk/value; -1 = skip)"; }
+    public FindObligationCommand() { }
 
-    @Override
-    public void execute(Scanner sc) {
-        Derivative d = menu.getSelected();
-        if (d == null) { System.out.println("No selected derivative."); return; }
+    public UUID getDerivativeId() { return derivativeId; }
+    public void setDerivativeId(UUID derivativeId) { this.derivativeId = derivativeId; }
 
-        Double minA = Inputs.nextDoubleOrSkip(sc, "min insuredAmount");
-        Double maxA = Inputs.nextDoubleOrSkip(sc, "max insuredAmount");
-        Double minR = Inputs.nextDoubleOrSkip(sc, "min risk");
-        Double maxR = Inputs.nextDoubleOrSkip(sc, "max risk");
-        Double minV = Inputs.nextDoubleOrSkip(sc, "min value");
-        Double maxV = Inputs.nextDoubleOrSkip(sc, "max value");
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-        List<Obligation> res = d.findByRanges(minA, maxA, minR, maxR, minV, maxV);
-        System.out.println("Found: " + res.size());
-        for (int i = 0; i < res.size(); i++) {
-            Obligation o = res.get(i);
-            System.out.println("- " + o.getName() + " | risk=" + o.calculateRisk() + " | value=" + o.calculateValue());
-        }
-    }
+    @Override public void execute() { }
+    @Override public String getDescription() { return "Знайти облігацію у деривативі"; }
 }
