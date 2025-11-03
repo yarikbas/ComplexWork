@@ -9,8 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public final class FileManager {
-
-    /** Збереження деривативу у бінарний файл. */
     public void saveDerivative(Derivative derivative, String filename) {
         ensureParentDir(filename);
         try (ObjectOutputStream oos =
@@ -21,7 +19,6 @@ public final class FileManager {
         }
     }
 
-    /** Завантаження деривативу з бінарного файлу. */
     public Derivative loadDerivative(String filename) {
         try (ObjectInputStream ois =
                      new ObjectInputStream(new BufferedInputStream(new FileInputStream(filename)))) {
@@ -35,14 +32,13 @@ public final class FileManager {
         }
     }
 
-    /** Експорт у читабельний текстовий файл (UTF-8). */
     public void exportToText(Derivative derivative, String filename) {
         ensureParentDir(filename);
         Path path = Path.of(filename);
         try (BufferedWriter w = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
             w.write("DERIVATIVE\n");
             w.write("id: " + derivative.getId() + "\n");
-            w.write("name: " + safe(derivative.getName()) + "\n");
+            w.write("name: " + derivative.getName() + "\n");
             w.write("obligations: " + (derivative.getObligations() == null ? 0 : derivative.getObligations().size()) + "\n");
             w.write("\n");
 
@@ -52,7 +48,7 @@ public final class FileManager {
                     if (o == null) continue;
                     w.write("[" + i++ + "] " + o.getClass().getSimpleName() + "\n");
                     w.write("  id            : " + o.getId() + "\n");
-                    w.write("  name          : " + safe(o.getName()) + "\n");
+                    w.write("  name          : " + o.getName() + "\n");
                     w.write("  insuredAmount : " + o.getInsuredAmount() + "\n");
                     w.write("  factor        : " + o.getFactor() + "\n");
                     w.write("  period        : " + o.getPeriod() + "\n");
@@ -67,8 +63,6 @@ public final class FileManager {
         }
     }
 
-    // --- утиліти ---
-
     private static void ensureParentDir(String filename) {
         try {
             Path p = Path.of(filename).toAbsolutePath();
@@ -79,9 +73,5 @@ public final class FileManager {
         } catch (IOException e) {
             throw new RuntimeException("Не вдалося створити каталог для: " + filename, e);
         }
-    }
-
-    private static String safe(String s) {
-        return s == null ? "" : s;
     }
 }

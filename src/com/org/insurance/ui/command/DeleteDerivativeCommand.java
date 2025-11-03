@@ -2,10 +2,102 @@ package com.org.insurance.ui.command;
 
 import com.org.insurance.domain.Derivative;
 
-import java.util.List;
+import java.util.*;
 import java.util.Scanner;
 
 public class DeleteDerivativeCommand implements Command {
-    @Override public void execute(Scanner in, List<Derivative> derivatives) { }
-    @Override public String getDescription() { return "Видалити дериватив"; }
+
+    @Override
+    public void execute(Scanner in, List<Derivative> derivatives) {
+        if (derivatives == null || derivatives.isEmpty()) {
+            System.out.println("Немає деривативів для видалення.");
+            return;
+        }
+
+        // показати всі
+        System.out.println("Список деривативів:");
+        for (int i = 0; i < derivatives.size(); i++) {
+            Derivative d = derivatives.get(i);
+            String name = d.getName() != null ? d.getName() : "без назви";
+            int count = (d.getObligations() == null) ? 0 : d.getObligations().size();
+            System.out.printf("%2d) %s (%s) — items: %d%n", i + 1, name, d.getId(), count);
+        }
+
+        // підказка по вводу
+        System.out.println("Введіть №(и) для видалення: один номер (наприклад, 3),");
+        System.out.println("список через кому (1,3,5), діапазони (2-4,7), або 'all'/'*' щоб видалити все.");
+        System.out.print("> ");
+
+        String input = in.nextLine().trim().toLowerCase(Locale.ROOT);
+        if (input.isEmpty()) {
+            System.out.println("Скасовано.");
+            return;
+        }
+
+        if (input.equals("all") || input.equals("*")) {
+            int n = derivatives.size();
+            derivatives.clear();
+            System.out.println("Видалено всі деривативи: " + n);
+            return;
+        }
+
+        // розбір списку індексів/діапазонів
+        Set<Integer> toRemove = parseSelection(input, derivatives.size());
+        if (toRemove.isEmpty()) {
+            System.out.println("Не знайдено коректних номерів для видалення.");
+            return;
+        }
+
+        // видаляти з кінця, щоб індекси не з’їхали
+        List<Integer> sorted = new ArrayList<>(toRemove);
+        sorted.sort(Comparator.reverseOrder());
+
+        int removedCount = 0;
+        for (int idx1 : sorted) {
+            int idx0 = idx1 - 1;
+            if (idx0 >= 0 && idx0 < derivatives.size()) {
+                Derivative d = derivatives.remove(idx0);
+                removedCount++;
+                System.out.println("Видалено: " + (d.getName() != null ? d.getName() : d.getId()));
+            }
+        }
+        System.out.println("Разом видалено: " + removedCount);
+    }
+
+    @Override
+    public String getDescription() {
+        return "Видалити дериватив(и) за номером/діапазоном або всі ('all'/'*').";
+    }
+
+    // ---- helpers ----
+
+    /** Розібрати рядок виду "1,3,5-7" у множину 1-базованих індексів у межах [1..max]. */
+    private static Set<Integer> parseSelection(String input, int max) {
+        Set<Integer> set = new HashSet<>();
+        String[] parts = input.split(",");
+        for (String raw : parts) {
+            String part = raw.trim();
+            if (part.isEmpty()) continue;
+
+            int dash = part.indexOf('-');
+            if (dash > 0) {
+                // діапазон a-b
+                try {
+                    int a = Integer.parseInt(part.substring(0, dash).trim());
+                    int b = Integer.parseInt(part.substring(dash + 1).trim());
+                    if (a > b) { int t = a; a = b; b = t; }
+                    for (int i = a; i <= b; i++) {
+                        if (i >= 1 && i <= max) set.add(i);
+                    }
+                } catch (NumberFormatException ignored) { }
+            } else {
+                // одиночне число
+                try {
+                    int i = Integer.parseInt(part);
+                    if (i >= 1 && i <= max) set.add(i);
+                } catch (NumberFormatException ignored) { }
+            }
+        }
+        return set;
+    }
 }

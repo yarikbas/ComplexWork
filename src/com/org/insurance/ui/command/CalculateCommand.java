@@ -15,16 +15,14 @@ public class CalculateCommand implements Command {
     public String getDescription() {
         return String.join("\n",
                 "Доступні розрахунки InsuranceCalculator:",
-                "  1) Вартість портфеля (calculatePortfolioValue)",
-                "  2) Сумарний ризик портфеля (calculateTotalRisk)",
-                "  3) Ціна сервісу для облігації (calculatePriceOfService)"
+                "  1) Вартість портфеля",
+                "  2) Сумарний ризик портфеля",
+                "  3) Ціна сервісу для облігації"
         );
     }
 
     @Override
     public void execute(Scanner in, List<Derivative> derivatives) {
-        if (calculator == null) return;
-
         System.out.println("Оберіть дію:");
         System.out.println("1) Вартість портфеля");
         System.out.println("2) Сумарний ризик портфеля");
@@ -57,8 +55,6 @@ public class CalculateCommand implements Command {
             default -> System.out.println("Невірний вибір.");
         }
     }
-
-    // ---- приватні допоміжні методи (всередині класу) ----
 
     private Derivative chooseDerivative(Scanner in, List<Derivative> list) {
         if (list == null || list.isEmpty()) {

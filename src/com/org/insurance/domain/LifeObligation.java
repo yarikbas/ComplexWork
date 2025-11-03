@@ -1,14 +1,47 @@
 package com.org.insurance.domain;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.Scanner;
 
 public class LifeObligation extends Obligation {
+    private static final long serialVersionUID = 1L;
+
     private String insuredPersonId;
     private LocalDate dateOfBirth;
     private String beneficiaryName;
 
-    protected LifeObligation(String name, double insuredAmount, double factor, int period, double interestRate, double probability, double maxCost) {
+    public LifeObligation(){
+        Scanner in =  new Scanner(System.in);
+        super(in);
+        this.setSpecificFields(in);
+    }
+
+    public LifeObligation(String name, double insuredAmount, double factor,
+                          int period, double interestRate, double probability, double maxCost,
+                          String insuredPersonId, LocalDate dateOfBirth, String beneficiaryName) {
         super(name, insuredAmount, factor, period, interestRate, probability, maxCost);
+        this.insuredPersonId = insuredPersonId;
+        this.dateOfBirth = dateOfBirth;
+        this.beneficiaryName = beneficiaryName;
+    }
+
+    @Override
+    public void setSpecificFields(Scanner in) {
+        System.out.print("ID застрахованої особи: ");
+        String pid = in.nextLine().trim();
+        if (!pid.isEmpty()) this.insuredPersonId = pid;
+
+        System.out.print("Дата народження (YYYY-MM-DD): ");
+        String dob = in.nextLine().trim();
+        if (!dob.isEmpty()) {
+            try { this.dateOfBirth = LocalDate.parse(dob); }
+            catch (DateTimeParseException ignored) {}
+        }
+
+        System.out.print("Бенефіціар (ім'я/ПІБ): ");
+        String ben = in.nextLine().trim();
+        if (!ben.isEmpty()) this.beneficiaryName = ben;
     }
 
     public String getInsuredPersonId() { return insuredPersonId; }

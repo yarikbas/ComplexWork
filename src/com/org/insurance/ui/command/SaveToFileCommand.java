@@ -44,7 +44,6 @@ public class SaveToFileCommand implements Command {
         String path = in.nextLine().trim();
         if (path.isEmpty()) return;
 
-        // збереження одним із методів твого FileManager
         if (fmt.equals("bin")) {
             fileManager.saveDerivative(chosen, path);
         } else {

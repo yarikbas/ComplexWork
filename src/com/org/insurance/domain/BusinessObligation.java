@@ -1,11 +1,35 @@
 package com.org.insurance.domain;
 
+import java.util.Scanner;
+
 public class BusinessObligation extends Obligation {
+
     private String registrationNumber;
     private String industry;
 
-    protected BusinessObligation(String name, double insuredAmount, double factor, int period, double interestRate, double probability, double maxCost) {
+    public BusinessObligation(){
+        Scanner in =  new Scanner(System.in);
+        super(in);
+        this.setSpecificFields(in);
+    }
+
+    public BusinessObligation(String name, double insuredAmount, double factor,
+                              int period, double interestRate, double probability, double maxCost,
+                              String registrationNumber, String industry) {
         super(name, insuredAmount, factor, period, interestRate, probability, maxCost);
+        this.registrationNumber = registrationNumber;
+        this.industry = industry;
+    }
+
+    @Override
+    public void setSpecificFields(Scanner in) {
+        System.out.print("registrationNumber: ");
+        String reg = in.nextLine().trim();
+        if (!reg.isEmpty()) this.registrationNumber = reg;
+
+        System.out.print("industry: ");
+        String ind = in.nextLine().trim();
+        if (!ind.isEmpty()) this.industry = ind;
     }
 
     public String getRegistrationNumber() { return registrationNumber; }

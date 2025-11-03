@@ -1,29 +1,29 @@
 package com.org.insurance.domain;
 
 import java.io.Serializable;
+import java.util.Scanner;
 import java.util.UUID;
 
 public abstract class Obligation implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    // --- поля ---
-    private final UUID id = UUID.randomUUID();
-    private String name;
-    private double insuredAmount;
-    private double factor;
-    private int period;
-    private double interestRate;
-    private double probability;
-    private double maxCost;
+    protected final UUID id;
+    protected String name;
+    protected double insuredAmount;
+    protected double factor;
+    protected int period;
+    protected double interestRate;
+    protected double probability;
+    protected double maxCost;
 
-    // --- конструктор (для підкласів; клас абстрактний) ---
-    protected Obligation(String name,
-                         double insuredAmount,
-                         double factor,
-                         int period,
-                         double interestRate,
-                         double probability,
-                         double maxCost) {
+    public Obligation(String name,
+                      double insuredAmount,
+                      double factor,
+                      int period,
+                      double interestRate,
+                      double probability,
+                      double maxCost) {
+        this.id = UUID.randomUUID();
         this.name = name;
         this.insuredAmount = insuredAmount;
         this.factor = factor;
@@ -33,7 +33,20 @@ public abstract class Obligation implements Serializable {
         this.maxCost = maxCost;
     }
 
-    // --- гетери ---
+    protected Obligation(Scanner in) {
+        this.id = UUID.randomUUID();
+        System.out.print("Назва облігації: ");
+        this.name = in.nextLine().trim();
+        this.insuredAmount = askDouble(in, "Сума страхування (insuredAmount): ");
+        this.factor        = askDouble(in, "Фактор (factor): ");
+        this.period        = askInt(in,    "Період у місяцях (period): ");
+        this.interestRate  = askDouble(in, "Відсоткова ставка (interestRate, напр. 0.07): ");
+        this.probability   = askDouble(in, "Ймовірність (probability, 0..1): ");
+        this.maxCost       = askDouble(in, "Гранична вартість (maxCost): ");
+    }
+
+    public abstract void setSpecificFields(Scanner in);
+
     public UUID getId() { return id; }
     public String getName() { return name; }
     public double getInsuredAmount() { return insuredAmount; }
@@ -50,4 +63,21 @@ public abstract class Obligation implements Serializable {
     public void setInterestRate(double interestRate) { this.interestRate = interestRate; }
     public void setProbability(double probability) { this.probability = probability; }
     public void setMaxCost(double maxCost) { this.maxCost = maxCost; }
+
+    private static double askDouble(Scanner in, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String s = in.nextLine().trim();
+            try { return Double.parseDouble(s); }
+            catch (Exception e) { System.out.println("Введіть число (наприклад, 123.45)."); }
+        }
+    }
+    private static int askInt(Scanner in, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String s = in.nextLine().trim();
+            try { return Integer.parseInt(s); }
+            catch (Exception e) { System.out.println("Введіть ціле число (наприклад, 12)."); }
+        }
+    }
 }

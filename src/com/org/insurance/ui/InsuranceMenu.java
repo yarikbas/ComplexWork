@@ -119,7 +119,6 @@ public class InsuranceMenu {
         });
     }
 
-    /** Коротка однорядкова версія опису для списку команд. */
     private static String oneLine(String s) {
         if (s == null) return "";
         s = s.replace("\r", " ").replace("\n", " ");

@@ -15,7 +15,7 @@ public class LoadFromFileCommand implements Command {
         String path = in.nextLine().trim();
         if (path.isEmpty()) return;
 
-        Derivative d = fileManager.loadDerivative(path); // читає ОДИН дериватив
+        Derivative d = fileManager.loadDerivative(path);
         if (d != null) {
             derivatives.add(d);
             System.out.println("Завантажено: " + (d.getName() != null ? d.getName() : d.getId()));

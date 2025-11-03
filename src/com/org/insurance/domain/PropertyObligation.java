@@ -1,11 +1,34 @@
 package com.org.insurance.domain;
 
+import java.util.Scanner;
+
 public class PropertyObligation extends Obligation {
     private String propertyAddress;
     private String propertyType;
 
-    protected PropertyObligation(String name, double insuredAmount, double factor, int period, double interestRate, double probability, double maxCost) {
+    public PropertyObligation(){
+        Scanner in =  new Scanner(System.in);
+        super(in);
+        this.setSpecificFields(in);
+    }
+
+    public PropertyObligation(String name, double insuredAmount, double factor,
+                              int period, double interestRate, double probability, double maxCost,
+                              String propertyAddress, String propertyType) {
         super(name, insuredAmount, factor, period, interestRate, probability, maxCost);
+        this.propertyAddress = propertyAddress;
+        this.propertyType = propertyType;
+    }
+
+    @Override
+    public void setSpecificFields(Scanner in) {
+        System.out.print("Адреса нерухомості: ");
+        String addr = in.nextLine().trim();
+        if (!addr.isEmpty()) this.propertyAddress = addr;
+
+        System.out.print("Тип нерухомості (квартира/будинок/офіс тощо): ");
+        String type = in.nextLine().trim();
+        if (!type.isEmpty()) this.propertyType = type;
     }
 
     public String getPropertyAddress() { return propertyAddress; }
