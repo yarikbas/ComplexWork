@@ -4,10 +4,24 @@ import com.org.insurance.domain.Derivative;
 import com.org.insurance.domain.Obligation;
 import com.org.insurance.service.RiskComparator;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 
 public class SortByRiskCommand implements Command {
+
+    private final Comparator<Obligation> comparator;
+
+    /** Дефолт: використовуємо стандартну формулу ризику. */
+    public SortByRiskCommand() {
+        this(new RiskComparator());
+    }
+
+    /** Можна підкласти інший компаратор (для тестів або іншої формули). */
+    public SortByRiskCommand(Comparator<Obligation> comparator) {
+        this.comparator = comparator;
+    }
+
     @Override
     public String getDescription() {
         return "Сортувати облігації у деривативі за зменшенням ризику (через RiskComparator)";
@@ -24,17 +38,18 @@ public class SortByRiskCommand implements Command {
             return;
         }
 
-        var cmp = new RiskComparator();
-        obs.sort(cmp.reversed());
+        obs.sort(comparator.reversed()); // ↓ ризик
 
         System.out.println("Відсортовано (risk ↓):");
         for (int i = 0; i < obs.size(); i++) {
             Obligation o = obs.get(i);
-            double r = RiskComparator.riskScore(o);
-            System.out.printf("%2d) %-20s  risk=%.6f%n",
+            double r = (comparator instanceof RiskComparator rc)
+                    ? RiskComparator.riskScore(o) // показуємо ту ж метрику
+                    : Double.NaN;
+            System.out.printf("%2d) %-20s  risk=%s%n",
                     i + 1,
                     o.getName() != null ? o.getName() : "—",
-                    r);
+                    (Double.isNaN(r) ? "—" : String.format("%.6f", r)));
         }
     }
 

@@ -9,7 +9,7 @@ public class InsuranceMenu {
 
     private final List<Derivative> derivatives;
     private final Scanner in;
-    private final LinkedHashMap<String, Command> commands; // важливо: зберігає порядок
+    private final LinkedHashMap<String, Command> commands;
     private boolean running;
 
     public InsuranceMenu() {
@@ -23,7 +23,7 @@ public class InsuranceMenu {
         running = true;
         System.out.println("Введіть номер команди. Введіть 'help' для описів, 'exit' — щоб вийти.");
         while (running) {
-            showShortMenu();               // ← показуємо список команд КОЖЕН раз
+            showShortMenu();
             System.out.print("> ");
             String line = in.hasNextLine() ? in.nextLine().trim() : null;
             if (line == null) break;
@@ -72,7 +72,6 @@ public class InsuranceMenu {
         System.out.println("Завершення роботи...");
     }
 
-    // --- НОВЕ: коротке меню (без описів), друкується завжди ---
     private void showShortMenu() {
         if (commands.isEmpty()) {
             System.out.println("[немає зареєстрованих команд]");
@@ -110,12 +109,6 @@ public class InsuranceMenu {
         registerCommand("save",   new SaveToFileCommand());
         registerCommand("show",   new ShowDerivativesCommand());
         registerCommand("sort",   new SortByRiskCommand());
-    }
-
-    private static String oneLine(String s) {
-        if (s == null) return "";
-        s = s.replace("\r", " ").replace("\n", " ");
-        return s.length() > 80 ? s.substring(0, 77) + "..." : s;
     }
 
     public void registerCommand(String name, Command command) {
