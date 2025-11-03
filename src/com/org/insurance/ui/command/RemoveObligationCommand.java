@@ -1,25 +1,52 @@
 package com.org.insurance.ui.command;
 
 import com.org.insurance.domain.Derivative;
+import com.org.insurance.domain.Obligation;
 import com.org.insurance.ui.InsuranceMenu;
+import java.util.List;
 
-public class RemoveObligationFromSelectedCommand implements Command {
+public class RemoveObligationCommand implements Command {
     @Override
     public String getDescription() {
-        return "Remove obligation from selected derivative";
+        return "Remove obligation from derivative";
     }
 
     @Override
-    public void execute() {
-        InsuranceMenu menu = InsuranceMenu.getInstance();
-        Derivative current = menu.getDerivative();
-        if (current != null && !current.getItems().isEmpty()) {
-            System.out.println("Enter obligation ID to remove: ");
-            String id = InsuranceMenu.scanner.nextLine();
-            // Логіка пошуку та видалення obligation за ID
-            System.out.println("Obligation removed");
+    public void execute(List<Derivative> derivatives) {
+        if (derivatives.isEmpty()) {
+            System.out.println("No derivatives available.");
+            return;
+        }
+
+        System.out.println("Select derivative:");
+        for (int i = 0; i < derivatives.size(); i++) {
+            System.out.println(i + ". " + derivatives.get(i).getName());
+        }
+
+        System.out.print("Enter derivative number: ");
+        int derivChoice = InsuranceMenu.scanner.nextInt();
+        Derivative selectedDerivative = derivatives.get(derivChoice);
+
+        List<Obligation> obligations = selectedDerivative.getItems();
+        if (obligations.isEmpty()) {
+            System.out.println("No obligations in selected derivative!");
+            return;
+        }
+
+        System.out.println("Obligations in " + selectedDerivative.getName() + ":");
+        for (int i = 0; i < obligations.size(); i++) {
+            System.out.println(i + ". " + obligations.get(i).getName());
+        }
+
+        System.out.print("Enter obligation number to remove: ");
+        int obligChoice = InsuranceMenu.scanner.nextInt();
+
+        if (obligChoice >= 0 && obligChoice < obligations.size()) {
+            Obligation removed = obligations.get(obligChoice);
+            selectedDerivative.removeObligation(removed.getId());
+            System.out.println("Removed: " + removed.getName());
         } else {
-            System.out.println("No derivative selected or empty!");
+            System.out.println("Invalid selection!");
         }
     }
 }
