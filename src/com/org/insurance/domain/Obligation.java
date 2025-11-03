@@ -6,8 +6,8 @@ import java.util.UUID;
 public abstract class Obligation implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    // --- поля ---
     private final UUID id = UUID.randomUUID();
-
     private String name;
     private double insuredAmount;
     private double factor;
@@ -16,7 +16,24 @@ public abstract class Obligation implements Serializable {
     private double probability;
     private double maxCost;
 
-    // Getters
+    // --- конструктор (для підкласів; клас абстрактний) ---
+    protected Obligation(String name,
+                         double insuredAmount,
+                         double factor,
+                         int period,
+                         double interestRate,
+                         double probability,
+                         double maxCost) {
+        this.name = name;
+        this.insuredAmount = insuredAmount;
+        this.factor = factor;
+        this.period = period;
+        this.interestRate = interestRate;
+        this.probability = probability;
+        this.maxCost = maxCost;
+    }
+
+    // --- гетери ---
     public UUID getId() { return id; }
     public String getName() { return name; }
     public double getInsuredAmount() { return insuredAmount; }
@@ -26,7 +43,6 @@ public abstract class Obligation implements Serializable {
     public double getProbability() { return probability; }
     public double getMaxCost() { return maxCost; }
 
-    // Setters
     public void setName(String name) { this.name = name; }
     public void setInsuredAmount(double insuredAmount) { this.insuredAmount = insuredAmount; }
     public void setFactor(double factor) { this.factor = factor; }

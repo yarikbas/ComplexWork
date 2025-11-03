@@ -1,13 +1,11 @@
 package com.org.insurance.ui.command;
 
+import com.org.insurance.domain.Derivative;
+
+import java.util.List;
+import java.util.Scanner;
+
 public class CreateDerivativeCommand implements Command {
-    private String name;
-
-    public CreateDerivativeCommand() { }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    @Override public void execute() { }
+    @Override public void execute(Scanner in, List<Derivative> derivatives) { }
     @Override public String getDescription() { return "Створити дериватив"; }
 }

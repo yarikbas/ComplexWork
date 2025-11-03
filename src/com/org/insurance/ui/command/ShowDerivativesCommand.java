@@ -1,8 +1,11 @@
 package com.org.insurance.ui.command;
 
-public class ShowDerivativesCommand implements Command {
-    public ShowDerivativesCommand() { }
+import com.org.insurance.domain.Derivative;
 
-    @Override public void execute() { }
+import java.util.List;
+import java.util.Scanner;
+
+public class ShowDerivativesCommand implements Command {
+    @Override public void execute(Scanner in, List<Derivative> derivatives) { }
     @Override public String getDescription() { return "Показати список деривативів"; }
 }

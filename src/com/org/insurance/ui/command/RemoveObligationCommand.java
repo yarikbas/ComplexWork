@@ -1,19 +1,11 @@
 package com.org.insurance.ui.command;
 
-import java.util.UUID;
+import com.org.insurance.domain.Derivative;
+
+import java.util.List;
+import java.util.Scanner;
 
 public class RemoveObligationCommand implements Command {
-    private UUID derivativeId;
-    private UUID obligationId;
-
-    public RemoveObligationCommand() { }
-
-    public UUID getDerivativeId() { return derivativeId; }
-    public void setDerivativeId(UUID derivativeId) { this.derivativeId = derivativeId; }
-
-    public UUID getObligationId() { return obligationId; }
-    public void setObligationId(UUID obligationId) { this.obligationId = obligationId; }
-
-    @Override public void execute() { }
+    @Override public void execute(Scanner in, List<Derivative> derivatives) { }
     @Override public String getDescription() { return "Видалити облігацію з деривативу"; }
 }

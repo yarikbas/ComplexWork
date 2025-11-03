@@ -4,6 +4,10 @@ public class LiabilityObligation extends Obligation {
     private String coverageType;
     private String jurisdiction;
 
+    protected LiabilityObligation(String name, double insuredAmount, double factor, int period, double interestRate, double probability, double maxCost) {
+        super(name, insuredAmount, factor, period, interestRate, probability, maxCost);
+    }
+
     public String getCoverageType() { return coverageType; }
     public void setCoverageType(String coverageType) { this.coverageType = coverageType; }
 

@@ -7,6 +7,10 @@ public class TravelObligation extends Obligation {
     private LocalDate tripStartDate;
     private LocalDate tripEndDate;
 
+    protected TravelObligation(String name, double insuredAmount, double factor, int period, double interestRate, double probability, double maxCost) {
+        super(name, insuredAmount, factor, period, interestRate, probability, maxCost);
+    }
+
     public String getDestinationCountry() { return destinationCountry; }
     public void setDestinationCountry(String destinationCountry) { this.destinationCountry = destinationCountry; }
 

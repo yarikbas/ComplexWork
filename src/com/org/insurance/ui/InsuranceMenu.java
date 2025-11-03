@@ -14,15 +14,15 @@ public class InsuranceMenu {
 
     private boolean running;
 
-    // --- конструктор: тут же реєструємо команди ---
+    // --- конструктор: реєструємо команди ---
     public InsuranceMenu() {
         this.derivatives = new ArrayList<>();
         this.in = new Scanner(System.in);
         this.commands = new LinkedHashMap<>();
-        registerBuiltInCommands(); // ← реєстрація команд у меню
+        registerBuiltInCommands();
     }
 
-    // --- публічні методи з ТЗ ---
+    // --- API ---
     public void run() {
         running = true;
         System.out.println("Введіть 'help' для списку команд, 'exit' — щоб вийти.");
@@ -36,8 +36,8 @@ public class InsuranceMenu {
     }
 
     public void registerCommand(String name, Command command) {
-        Objects.requireNonNull(name);
-        Objects.requireNonNull(command);
+        Objects.requireNonNull(name, "name");
+        Objects.requireNonNull(command, "command");
         commands.put(name.trim().toLowerCase(Locale.ROOT), command);
     }
 
@@ -53,8 +53,10 @@ public class InsuranceMenu {
             showHelp();
             return;
         }
-        System.out.println("→ " + name + ": " + cmd.getDescription());
-        cmd.execute(); // логіку додамо пізніше
+
+        System.out.println("→ " + name + ":");
+        System.out.println(cmd.getDescription());
+        cmd.execute(in, derivatives); // ГОЛОВНЕ: передаємо scanner і список деривативів
     }
 
     public void showHelp() {
@@ -65,9 +67,9 @@ public class InsuranceMenu {
         System.out.println("Доступні команди:");
         int i = 1;
         for (Map.Entry<String, Command> e : commands.entrySet()) {
-            System.out.printf("%2d) %-22s — %s%n", i++, e.getKey(), e.getValue().getDescription());
+            System.out.printf("%2d) %-12s — %s%n", i++, e.getKey(), oneLine(e.getValue().getDescription()));
         }
-        System.out.println("Також: help, exit");
+        System.out.println("Також доступні: help, exit");
     }
 
     public void exit() {
@@ -75,6 +77,8 @@ public class InsuranceMenu {
         System.out.println("Завершення роботи...");
     }
 
+    /** Опціонально: зручно вибирати дериватив у команді.
+     *  (Можеш використовувати або цей метод, або власний у командах) */
     public Derivative getDerivative() {
         if (derivatives.isEmpty()) {
             System.out.println("Список деривативів порожній.");
@@ -97,7 +101,7 @@ public class InsuranceMenu {
         return derivatives.get(idx - 1);
     }
 
-    // --- приватне: вбудована реєстрація команд у меню ---
+    // --- приватне ---
     private void registerBuiltInCommands() {
         registerCommand("add",    new AddObligationCommand());
         registerCommand("calc",   new CalculateCommand());
@@ -109,13 +113,16 @@ public class InsuranceMenu {
         registerCommand("save",   new SaveToFileCommand());
         registerCommand("show",   new ShowDerivativesCommand());
         registerCommand("sort",   new SortByRiskCommand());
-
-        // За бажанням — синоніми:
-        registerCommand("a",      new AddObligationCommand());
-        registerCommand("ls",     new ShowDerivativesCommand());
         registerCommand("q",      new Command() {
-            @Override public void execute() { exit(); }
-            @Override public String getDescription() { return "Вийти з програми"; }
+            @Override public void execute(Scanner in, List<Derivative> derivatives) { exit(); }
+            @Override public String getDescription() { return "Вийти з програми (alias для exit)"; }
         });
+    }
+
+    /** Коротка однорядкова версія опису для списку команд. */
+    private static String oneLine(String s) {
+        if (s == null) return "";
+        s = s.replace("\r", " ").replace("\n", " ");
+        return s.length() > 80 ? s.substring(0, 77) + "..." : s;
     }
 }

@@ -1,13 +1,29 @@
 package com.org.insurance.ui.command;
 
+import com.org.insurance.domain.Derivative;
+import com.org.insurance.io.FileManager;
+
+import java.util.List;
+import java.util.Scanner;
+
 public class LoadFromFileCommand implements Command {
-    private String path;
+    private final FileManager fileManager = new FileManager();
 
-    public LoadFromFileCommand() { }
+    @Override
+    public void execute(Scanner in, List<Derivative> derivatives) {
+        System.out.print("Шлях до файлу (напр., data/derivative.bin): ");
+        String path = in.nextLine().trim();
+        if (path.isEmpty()) return;
 
-    public String getPath() { return path; }
-    public void setPath(String path) { this.path = path; }
+        Derivative d = fileManager.loadDerivative(path); // читає ОДИН дериватив
+        if (d != null) {
+            derivatives.add(d);
+            System.out.println("Завантажено: " + (d.getName() != null ? d.getName() : d.getId()));
+        }
+    }
 
-    @Override public void execute() { }
-    @Override public String getDescription() { return "Завантажити дані з файлу"; }
+    @Override
+    public String getDescription() {
+        return "Завантажити дериватив із бінарного файлу";
+    }
 }

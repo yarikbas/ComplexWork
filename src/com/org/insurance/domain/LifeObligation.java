@@ -7,6 +7,10 @@ public class LifeObligation extends Obligation {
     private LocalDate dateOfBirth;
     private String beneficiaryName;
 
+    protected LifeObligation(String name, double insuredAmount, double factor, int period, double interestRate, double probability, double maxCost) {
+        super(name, insuredAmount, factor, period, interestRate, probability, maxCost);
+    }
+
     public String getInsuredPersonId() { return insuredPersonId; }
     public void setInsuredPersonId(String insuredPersonId) { this.insuredPersonId = insuredPersonId; }
 
