@@ -25,7 +25,7 @@ public class SortByRiskCommand implements Command {
         }
 
         var cmp = new RiskComparator();
-        obs.sort(cmp.reversed()); // за зменшенням ризику
+        obs.sort(cmp.reversed());
 
         System.out.println("Відсортовано (risk ↓):");
         for (int i = 0; i < obs.size(); i++) {

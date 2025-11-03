@@ -9,8 +9,7 @@ public class InsuranceMenu {
 
     private final List<Derivative> derivatives;
     private final Scanner in;
-    private final Map<String, Command> commands;
-
+    private final LinkedHashMap<String, Command> commands; // важливо: зберігає порядок
     private boolean running;
 
     public InsuranceMenu() {
@@ -22,8 +21,9 @@ public class InsuranceMenu {
 
     public void run() {
         running = true;
-        System.out.println("Введіть 'help' для списку команд, 'exit' — щоб вийти.");
+        System.out.println("Введіть номер команди. Введіть 'help' для описів, 'exit' — щоб вийти.");
         while (running) {
+            showShortMenu();               // ← показуємо список команд КОЖЕН раз
             System.out.print("> ");
             String line = in.hasNextLine() ? in.nextLine().trim() : null;
             if (line == null) break;
@@ -32,28 +32,24 @@ public class InsuranceMenu {
         }
     }
 
-    public void registerCommand(String name, Command command) {
-        Objects.requireNonNull(name, "name");
-        Objects.requireNonNull(command, "command");
-        commands.put(name.trim().toLowerCase(Locale.ROOT), command);
-    }
-
     public void executeCommand(String input) {
-        String name = input.trim().toLowerCase(Locale.ROOT);
+        String s = input.trim();
 
-        if ("help".equals(name)) { showHelp(); return; }
-        if ("exit".equals(name) || "quit".equals(name)) { exit(); return; }
+        if (s.equalsIgnoreCase("help")) { showHelp(); return; }
+        if (s.equalsIgnoreCase("exit") || s.equalsIgnoreCase("quit")) { exit(); return; }
 
-        Command cmd = commands.get(name);
-        if (cmd == null) {
-            System.out.println("Невідома команда: " + input);
-            showHelp();
+        Integer idx = tryParseInt(s);
+        if (idx != null) {
+            Command cmd = getCommandByIndex(idx);
+            if (cmd == null) {
+                System.out.println("Невірний номер. Спробуйте ще.");
+                return;
+            }
+            cmd.execute(in, derivatives);
             return;
         }
 
-        System.out.println("→ " + name + ":");
-        System.out.println(cmd.getDescription());
-        cmd.execute(in, derivatives); // ГОЛОВНЕ: передаємо scanner і список деривативів
+        System.out.println("Невідоме введення. Оберіть номер або введіть 'help'.");
     }
 
     public void showHelp() {
@@ -61,41 +57,46 @@ public class InsuranceMenu {
             System.out.println("Команди не зареєстровані.");
             return;
         }
-        System.out.println("Доступні команди:");
+        System.out.println("ОПИС КОМАНД:");
         int i = 1;
         for (Map.Entry<String, Command> e : commands.entrySet()) {
-            System.out.printf("%2d) %-12s — %s%n", i++, e.getKey(), oneLine(e.getValue().getDescription()));
+            System.out.printf("%2d) %-12s — %s%n",
+                    i++, e.getKey(), e.getValue().getDescription());
         }
-        System.out.println("Також доступні: help, exit");
+        System.out.println("Доступні також: help, exit");
     }
+
 
     public void exit() {
         running = false;
         System.out.println("Завершення роботи...");
     }
 
-    /** Опціонально: зручно вибирати дериватив у команді.
-     *  (Можеш використовувати або цей метод, або власний у командах) */
-    public Derivative getDerivative() {
-        if (derivatives.isEmpty()) {
-            System.out.println("Список деривативів порожній.");
-            return null;
+    // --- НОВЕ: коротке меню (без описів), друкується завжди ---
+    private void showShortMenu() {
+        if (commands.isEmpty()) {
+            System.out.println("[немає зареєстрованих команд]");
+            return;
         }
-        System.out.println("Оберіть дериватив:");
-        for (int i = 0; i < derivatives.size(); i++) {
-            Derivative d = derivatives.get(i);
-            String name = d.getName() != null ? d.getName() : "без назви";
-            System.out.printf("%d) %s (%s)%n", i + 1, name, d.getId());
+        System.out.println("\nКОМАНДИ:");
+        int i = 1;
+        for (String key : commands.keySet()) {
+            System.out.printf("%2d) %s%n", i++, key);
         }
-        System.out.print("№: ");
-        String s = in.hasNextLine() ? in.nextLine().trim() : "";
-        int idx;
-        try { idx = Integer.parseInt(s); } catch (NumberFormatException e) { idx = -1; }
-        if (idx < 1 || idx > derivatives.size()) {
-            System.out.println("Невірний вибір.");
-            return null;
+        System.out.println("help — описи,  exit — вихід");
+    }
+
+    private Command getCommandByIndex(int index1based) {
+        if (index1based < 1 || index1based > commands.size()) return null;
+        int i = 1;
+        for (Command c : commands.values()) {
+            if (i == index1based) return c;
+            i++;
         }
-        return derivatives.get(idx - 1);
+        return null;
+    }
+    private static Integer tryParseInt(String s) {
+        try { return Integer.parseInt(s); } catch (Exception e) { return null; }
     }
 
     private void registerBuiltInCommands() {
@@ -109,15 +110,17 @@ public class InsuranceMenu {
         registerCommand("save",   new SaveToFileCommand());
         registerCommand("show",   new ShowDerivativesCommand());
         registerCommand("sort",   new SortByRiskCommand());
-        registerCommand("q",      new Command() {
-            @Override public void execute(Scanner in, List<Derivative> derivatives) { exit(); }
-            @Override public String getDescription() { return "Вийти з програми (alias для exit)"; }
-        });
     }
 
     private static String oneLine(String s) {
         if (s == null) return "";
         s = s.replace("\r", " ").replace("\n", " ");
         return s.length() > 80 ? s.substring(0, 77) + "..." : s;
+    }
+
+    public void registerCommand(String name, Command command) {
+        Objects.requireNonNull(name, "name");
+        Objects.requireNonNull(command, "command");
+        commands.put(name.trim().toLowerCase(Locale.ROOT), command);
     }
 }
