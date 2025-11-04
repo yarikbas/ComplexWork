@@ -57,7 +57,7 @@ public class FindObligationCommand implements Command {
                     i+1, o.getName()!=null?o.getName():"—", o.getInsuredAmount(), o.getFactor(), o.getProbability());
         }
     }
-    -
+
     private Derivative pickDerivative(Scanner in, List<Derivative> list) {
         if (list.isEmpty()) { System.out.println("Немає деривативів."); return null; }
         for (int i=0;i<list.size();i++) System.out.printf("%d) %s%n", i+1, nameOf(list.get(i)));
