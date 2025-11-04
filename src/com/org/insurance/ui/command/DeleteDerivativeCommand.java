@@ -23,7 +23,6 @@ public class DeleteDerivativeCommand implements Command {
             System.out.printf("%2d) %s (%s) — items: %d%n", i + 1, name, d.getId(), count);
         }
 
-        // підказка по вводу
         System.out.println("Введіть №(и) для видалення: один номер (наприклад, 3),");
         System.out.println("список через кому (1,3,5), діапазони (2-4,7), або 'all'/'*' щоб видалити все.");
         System.out.print("> ");
@@ -41,14 +40,12 @@ public class DeleteDerivativeCommand implements Command {
             return;
         }
 
-        // розбір списку індексів/діапазонів
         Set<Integer> toRemove = parseSelection(input, derivatives.size());
         if (toRemove.isEmpty()) {
             System.out.println("Не знайдено коректних номерів для видалення.");
             return;
         }
 
-        // видаляти з кінця, щоб індекси не з’їхали
         List<Integer> sorted = new ArrayList<>(toRemove);
         sorted.sort(Comparator.reverseOrder());
 
@@ -69,9 +66,6 @@ public class DeleteDerivativeCommand implements Command {
         return "Видалити дериватив(и) за номером/діапазоном або всі ('all'/'*').";
     }
 
-    // ---- helpers ----
-
-    /** Розібрати рядок виду "1,3,5-7" у множину 1-базованих індексів у межах [1..max]. */
     private static Set<Integer> parseSelection(String input, int max) {
         Set<Integer> set = new HashSet<>();
         String[] parts = input.split(",");

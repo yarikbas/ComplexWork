@@ -31,7 +31,6 @@ public class RemoveObligationCommand implements Command {
             System.out.printf("%2d) %-22s  %-14s  (%s)%n", i + 1, name, type, o.getId());
         }
 
-        // 2) зчитати вибір
         System.out.println("""
                 Введіть №(и) або UUID для видалення:
                  приклади: 3
@@ -46,14 +45,12 @@ public class RemoveObligationCommand implements Command {
             return;
         }
 
-        // 3) розібрати індекси/діапазони та UUID
         Selection sel = parseSelection(input, obs.size());
         if (sel.isEmpty()) {
             System.out.println("Не знайдено коректних позицій або UUID для видалення.");
             return;
         }
 
-        // 4) підтвердження
         System.out.printf("Підтвердити видалення (%d за індексами, %d за UUID) [y/N]: ",
                 sel.indexes.size(), sel.uuids.size());
         String confirm = in.nextLine().trim().toLowerCase(Locale.ROOT);
@@ -62,12 +59,11 @@ public class RemoveObligationCommand implements Command {
             return;
         }
 
-        // 5) видаляти: спершу за індексами (у зворотному порядку), потім UUID
         int removed = 0;
 
         if (!sel.indexes.isEmpty()) {
             List<Integer> idxs = new ArrayList<>(sel.indexes);
-            idxs.sort(Comparator.reverseOrder()); // щоб не зсувались
+            idxs.sort(Comparator.reverseOrder());
             for (int idx1 : idxs) {
                 int idx0 = idx1 - 1;
                 if (idx0 >= 0 && idx0 < obs.size()) {
@@ -79,12 +75,13 @@ public class RemoveObligationCommand implements Command {
         }
 
         if (!sel.uuids.isEmpty()) {
-            // зручно видаляти по одному uuid, щоб показати що саме зникло
             for (UUID id : sel.uuids) {
-                // знайдемо першу відповідність
                 int pos = -1;
                 for (int i = 0; i < obs.size(); i++) {
-                    if (obs.get(i).getId().equals(id)) { pos = i; break; }
+                    if (obs.get(i).getId().equals(id)) {
+                        pos = i;
+                        break;
+                    }
                 }
                 if (pos != -1) {
                     Obligation o = obs.remove(pos);
@@ -96,14 +93,12 @@ public class RemoveObligationCommand implements Command {
             }
         }
 
-        // 6) підсумок
         System.out.println("Разом видалено: " + removed);
         if (obs.isEmpty()) {
             System.out.println("У деривативі не залишилося облігацій.");
         }
     }
 
-    // ---------- helpers ----------
     private Derivative pickDerivative(Scanner in, List<Derivative> list) {
         if (list == null || list.isEmpty()) {
             System.out.println("Немає деривативів.");
@@ -127,24 +122,23 @@ public class RemoveObligationCommand implements Command {
         return (o.getName() != null && !o.getName().isBlank()) ? o.getName() : o.getClass().getSimpleName();
     }
 
-    /** Контейнер вибраних позицій. */
     private static final class Selection {
-        final Set<Integer> indexes = new HashSet<>(); // 1-базовані
+        final Set<Integer> indexes = new HashSet<>();
         final List<UUID> uuids = new ArrayList<>();
-        boolean isEmpty() { return indexes.isEmpty() && uuids.isEmpty(); }
+
+        boolean isEmpty() {
+            return indexes.isEmpty() && uuids.isEmpty();
+        }
     }
 
-    /** Розібрати рядок на 1-базовані індекси (числа/діапазони) і UUID (кома/пробіли не важливі). */
     private static Selection parseSelection(String input, int maxIndex) {
         Selection sel = new Selection();
 
-        // Розіб'ємо по комах і пробілах
         String[] tokens = input.split("[,\\s]+");
         for (String t : tokens) {
             String token = t.trim();
             if (token.isEmpty()) continue;
 
-            // Діапазон a-b
             int dash = token.indexOf('-');
             if (dash > 0 && dash < token.length()-1) {
                 String left = token.substring(0, dash).trim();

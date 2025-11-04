@@ -15,7 +15,10 @@ public class FindObligationCommand implements Command {
         Derivative d = pickDerivative(in, derivatives);
         if (d == null) return;
         var obs = d.getObligations();
-        if (obs.isEmpty()) { System.out.println("У деривативі немає облігацій."); return; }
+        if (obs.isEmpty()) {
+            System.out.println("У деривативі немає облігацій.");
+            return;
+        }
 
         System.out.println("Введи фільтри (порожнє — пропустити).");
         System.out.print("назва містить: ");
@@ -54,16 +57,21 @@ public class FindObligationCommand implements Command {
                     i+1, o.getName()!=null?o.getName():"—", o.getInsuredAmount(), o.getFactor(), o.getProbability());
         }
     }
-
-    // --- helpers ---
+    -
     private Derivative pickDerivative(Scanner in, List<Derivative> list) {
         if (list.isEmpty()) { System.out.println("Немає деривативів."); return null; }
         for (int i=0;i<list.size();i++) System.out.printf("%d) %s%n", i+1, nameOf(list.get(i)));
         System.out.print("> №: ");
-        try { int idx=Integer.parseInt(in.nextLine().trim()); return (idx>=1&&idx<=list.size())?list.get(idx-1):null; }
-        catch (Exception e){ return null; }
+        try {
+            int idx=Integer.parseInt(in.nextLine().trim());
+            return (idx>=1&&idx<=list.size())?list.get(idx-1):null;
+        }
+        catch (Exception e){
+            return null;
+        }
     }
-    private static String nameOf(Derivative d){ return d.getName()!=null?d.getName():"без назви"; }
+    private static String nameOf(Derivative d){
+        return d.getName()!=null?d.getName():"без назви"; }
 
     private static boolean matches(String part, String name) {
         if (part == null || part.isEmpty()) return true;
@@ -83,12 +91,16 @@ public class FindObligationCommand implements Command {
         System.out.print(prompt);
         String s = in.nextLine().trim();
         if (s.isEmpty()) return null;
-        try { return Double.parseDouble(s); } catch (Exception e) { return null; }
+        try {
+            return Double.parseDouble(s);
+        } catch (Exception e) { return null; }
     }
     private static Integer askIntOpt(Scanner in, String prompt) {
         System.out.print(prompt);
         String s = in.nextLine().trim();
         if (s.isEmpty()) return null;
-        try { return Integer.parseInt(s); } catch (Exception e) { return null; }
+        try {
+            return Integer.parseInt(s);
+        } catch (Exception e) { return null; }
     }
 }

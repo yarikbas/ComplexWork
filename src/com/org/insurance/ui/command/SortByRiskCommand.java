@@ -23,9 +23,11 @@ public class SortByRiskCommand implements Command {
         if (d == null) return;
 
         List<Obligation> obs = d.getObligations();
-        if (obs == null || obs.isEmpty()) { System.out.println("Порожньо."); return; }
+        if (obs == null || obs.isEmpty()) {
+            System.out.println("Порожньо."); return;
+        }
 
-        Collections.sort(obs, comparator.reversed()); // без лямбд
+        Collections.sort(obs, comparator.reversed());
 
         System.out.println("Відсортовано (risk ↓):");
         for (int i = 0; i < obs.size(); i++) {
@@ -37,11 +39,15 @@ public class SortByRiskCommand implements Command {
     }
 
     private Derivative pickDerivative(Scanner in, List<Derivative> list) {
-        if (list == null || list.isEmpty()) { System.out.println("Немає деривативів."); return null; }
+        if (list == null || list.isEmpty()) {
+            System.out.println("Немає деривативів."); return null; }
         for (int i = 0; i < list.size(); i++) System.out.printf("%d) %s%n", i + 1, nameOf(list.get(i)));
         System.out.print("> №: ");
-        try { int idx = Integer.parseInt(in.nextLine().trim()); return (idx>=1&&idx<=list.size())?list.get(idx-1):null; }
+        try {
+            int idx = Integer.parseInt(in.nextLine().trim());
+            return (idx>=1&&idx<=list.size())?list.get(idx-1):null; }
         catch (Exception e) { return null; }
     }
-    private static String nameOf(Derivative d){ return d.getName()!=null?d.getName():"без назви"; }
+    private static String nameOf(Derivative d){
+        return d.getName()!=null?d.getName():"без назви"; }
 }

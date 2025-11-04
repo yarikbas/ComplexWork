@@ -16,7 +16,7 @@ public class CreateDerivativeCommand implements Command {
         Derivative d = new Derivative();
         d.setName(name.isEmpty() ? null : name);
         if (d.getObligations() == null) {
-            d.setObligations(new ArrayList<>()); // гарантуємо порожній список
+            d.setObligations(new ArrayList<>());
         }
 
         derivatives.add(d);
