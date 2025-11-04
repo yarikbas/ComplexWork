@@ -7,21 +7,18 @@ import java.util.*;
 
 public class InsuranceMenu {
 
-    private final List<Derivative> derivatives;
-    private final Scanner in;
-    private final LinkedHashMap<String, Command> commands;
+    private final List<Derivative> derivatives = new ArrayList<>();
+    private final Scanner in = new Scanner(System.in);
+    private final Map<String, Command> commands = new HashMap<>();
     private boolean running;
 
     public InsuranceMenu() {
-        this.derivatives = new ArrayList<>();
-        this.in = new Scanner(System.in);
-        this.commands = new LinkedHashMap<>();
         registerBuiltInCommands();
     }
 
     public void run() {
         running = true;
-        System.out.println("Введіть номер команди. Введіть 'help' для описів, 'exit' — щоб вийти.");
+        System.out.println("Введіть назву команди (наприклад, 'add'). 'help' — описи, 'exit' — вихід.");
         while (running) {
             showShortMenu();
             System.out.print("> ");
@@ -33,23 +30,17 @@ public class InsuranceMenu {
     }
 
     public void executeCommand(String input) {
-        String s = input.trim();
+        String s = input.trim().toLowerCase(Locale.ROOT);
 
-        if (s.equalsIgnoreCase("help")) { showHelp(); return; }
-        if (s.equalsIgnoreCase("exit") || s.equalsIgnoreCase("quit")) { exit(); return; }
+        if (s.equals("help")) { showHelp(); return; }
+        if (s.equals("exit") || s.equals("quit")) { exit(); return; }
 
-        Integer idx = tryParseInt(s);
-        if (idx != null) {
-            Command cmd = getCommandByIndex(idx);
-            if (cmd == null) {
-                System.out.println("Невірний номер. Спробуйте ще.");
-                return;
-            }
-            cmd.execute(in, derivatives);
+        Command cmd = commands.get(s);
+        if (cmd == null) {
+            System.out.println("Невідома команда. Введіть слово з переліку або 'help'.");
             return;
         }
-
-        System.out.println("Невідоме введення. Оберіть номер або введіть 'help'.");
+        cmd.execute(in, derivatives);
     }
 
     public void showHelp() {
@@ -60,12 +51,10 @@ public class InsuranceMenu {
         System.out.println("ОПИС КОМАНД:");
         int i = 1;
         for (Map.Entry<String, Command> e : commands.entrySet()) {
-            System.out.printf("%2d) %-12s — %s%n",
-                    i++, e.getKey(), e.getValue().getDescription());
+            System.out.printf("%2d) %-10s — %s%n", i++, e.getKey(), e.getValue().getDescription());
         }
         System.out.println("Доступні також: help, exit");
     }
-
 
     public void exit() {
         running = false;
@@ -77,25 +66,12 @@ public class InsuranceMenu {
             System.out.println("[немає зареєстрованих команд]");
             return;
         }
-        System.out.println("\nКОМАНДИ:");
+        System.out.println("\nКОМАНДИ (вводьте слово):");
         int i = 1;
         for (String key : commands.keySet()) {
             System.out.printf("%2d) %s%n", i++, key);
         }
         System.out.println("help — описи,  exit — вихід");
-    }
-
-    private Command getCommandByIndex(int index1based) {
-        if (index1based < 1 || index1based > commands.size()) return null;
-        int i = 1;
-        for (Command c : commands.values()) {
-            if (i == index1based) return c;
-            i++;
-        }
-        return null;
-    }
-    private static Integer tryParseInt(String s) {
-        try { return Integer.parseInt(s); } catch (Exception e) { return null; }
     }
 
     private void registerBuiltInCommands() {
