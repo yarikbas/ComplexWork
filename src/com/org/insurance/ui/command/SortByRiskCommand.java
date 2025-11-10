@@ -45,9 +45,13 @@ public class SortByRiskCommand implements Command {
         System.out.print("> №: ");
         try {
             int idx = Integer.parseInt(in.nextLine().trim());
-            return (idx>=1&&idx<=list.size())?list.get(idx-1):null; }
-        catch (Exception e) { return null; }
+            return (
+                    idx>=1 && idx <= list.size()) ? list.get(idx-1) : null;
+        }
+        catch (Exception e) {
+            return null;
+        }
     }
     private static String nameOf(Derivative d){
-        return d.getName()!=null?d.getName():"без назви"; }
+        return d.getName() != null ? d.getName() : "без назви"; }
 }
