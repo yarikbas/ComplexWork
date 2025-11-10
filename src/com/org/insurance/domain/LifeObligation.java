@@ -19,7 +19,6 @@ public class LifeObligation extends Obligation {
 
     @Override
     public String toString() {
-        super.toString();
         return "LifeObligation{" +
                 "name=" + getName() +
                 ", id=" + getId() +

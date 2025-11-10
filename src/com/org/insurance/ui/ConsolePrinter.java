@@ -10,12 +10,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public final class ConsolePrinter {
-    private static final String INDENT = "   ";
-    private static final String BULLET  = " - ";
 
     private ConsolePrinter() {}
 
-    /** STAGE 1: індексований список деривативів у форматі "<name> (<shortId>)". */
     public static void printDerivatives(List<Derivative> derivatives) {
         List<Derivative> list = safeList(derivatives);
         if (list.isEmpty()) {
@@ -28,10 +25,6 @@ public final class ConsolePrinter {
         }
     }
 
-    /**
-     * STAGE 2 (дефолт): Дериватива + її облігації.
-     * Для облігацій використовується рядок: name + type + (short id).
-     */
     public static void printDerivativesWithObligations(List<Derivative> derivatives) {
         List<Derivative> list = safeList(derivatives);
         if (list.isEmpty()) {
@@ -50,7 +43,6 @@ public final class ConsolePrinter {
         }
     }
 
-    /** Друк лише списку зобов'язань одного Derivative (verbose-рядок з ризиком). */
     public static void printObligationsOf(Derivative d) {
         if (d == null) {
             System.out.println("Дериватив не обрано.");
@@ -66,8 +58,6 @@ public final class ConsolePrinter {
         }
     }
 
-    /* ---------- Форматування рядків ---------- */
-
     private static String derivativeLine(Derivative d) {
         String name = safe(d != null ? d.getName() : null, "без назви");
         String id = shortUuid(d != null ? d.getId() : null);
@@ -81,17 +71,6 @@ public final class ConsolePrinter {
         return derivativeLine(d) + " — " + count + " зобов'язань";
     }
 
-    /** name + type + (short id) — як ти просив «ту стрінг» для списку в середині деривативи */
-    private static String obligationLineNameTypeId(Obligation o) {
-        if (o == null) return "—";
-        String name = safe(o.getName(), "—");
-        String type = o.getClass().getSimpleName();
-        String id = shortUuid(o.getId());
-        // фіксована ширина, щоб тримати стовпчики рівними
-        return String.format("%-22s  %-18s  (id=%s)", name, type, id);
-    }
-
-    /** type | risk=... | id=short */
     private static String obligationLineTypeRiskId(Obligation o) {
         if (o == null) return "—";
         String type = o.getClass().getSimpleName().replace("Obligation", "");
@@ -99,8 +78,6 @@ public final class ConsolePrinter {
         String id = shortUuid(o.getId());
         return type + " | risk=" + formatRisk(risk) + " | id=" + id;
     }
-
-    /* ---------- Утиліти ---------- */
 
     private static <T> List<T> safeList(List<T> list) {
         return list == null ? Collections.emptyList() : list;

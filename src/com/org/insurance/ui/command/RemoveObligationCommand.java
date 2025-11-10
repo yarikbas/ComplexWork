@@ -100,7 +100,6 @@ public class RemoveObligationCommand implements Command {
             return null;
         }
         System.out.println("Оберіть деривативу:");
-        // друк списку деривативів (STAGE 1)
         ConsolePrinter.printDerivatives(list);
         System.out.print("> №: ");
         try {

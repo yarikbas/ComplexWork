@@ -15,7 +15,6 @@ public class LiabilityObligation extends Obligation {
 
     @Override
     public String toString() {
-        super.toString();
         return "LiabilityObligation{" +
                 "name=" + getName() +
                 ", id=" + getId() +

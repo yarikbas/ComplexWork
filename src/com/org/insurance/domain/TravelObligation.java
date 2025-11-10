@@ -18,7 +18,6 @@ public class TravelObligation extends Obligation {
 
     @Override
     public String toString() {
-        super.toString();
         return "TravelObligation{" +
                 "name=" + getName() +
                 ", id=" + getId() +

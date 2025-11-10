@@ -14,7 +14,6 @@ public class PropertyObligation extends Obligation {
 
     @Override
     public String toString() {
-        super.toString();
         return "PropertyObligation{" +
                 "name=" + getName() +
                 ", id=" + getId() +

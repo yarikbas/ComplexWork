@@ -25,7 +25,6 @@ public class AutoObligation extends Obligation {
 
     @Override
     public String toString() {
-        super.toString();
         return "AutoObligation{" +
                 "name=" + getName() +
                 ", id=" + getId() +

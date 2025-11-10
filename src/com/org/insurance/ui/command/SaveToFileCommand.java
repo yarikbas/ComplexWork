@@ -18,7 +18,6 @@ public class SaveToFileCommand implements Command {
             return;
         }
 
-        // вибір деривативу (STAGE 1)
         System.out.println("Список деривативів:");
         ConsolePrinter.printDerivatives(derivatives);
 

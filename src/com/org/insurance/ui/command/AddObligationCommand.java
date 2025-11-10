@@ -55,9 +55,7 @@ public class AddObligationCommand implements Command {
         return list.get(idx - 1);
     }
 
-    /** Об'єднаний вибір типу та створення екземпляра через enum-реєстр. */
     private Obligation pickAndCreateObligation(Scanner in) {
-        // локальне меню: лише видимі типи
         ObligationType[] menu = ObligationType.visibleValues();
         System.out.println("Оберіть тип облігації для додавання:");
         ObligationType.printAll(menu);

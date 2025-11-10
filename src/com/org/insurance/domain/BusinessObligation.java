@@ -15,7 +15,6 @@ public class BusinessObligation extends Obligation {
 
     @Override
     public String toString() {
-        super.toString();
         return "BusinessObligation{" +
                 "name=" + getName() +
                 ", id=" + getId() +
