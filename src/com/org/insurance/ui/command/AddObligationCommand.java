@@ -27,7 +27,6 @@ public class AddObligationCommand implements Command {
             return;
         }
 
-        // гарантуємо наявність списку зобов'язань
         if (d.getObligations() == null) {
             try {
                 d.getClass().getMethod("setObligations", List.class)

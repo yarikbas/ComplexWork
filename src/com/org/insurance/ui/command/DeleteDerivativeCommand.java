@@ -79,7 +79,6 @@ public class DeleteDerivativeCommand implements Command {
                     }
                 } catch (NumberFormatException ignored) { }
             } else {
-                // одиночне число
                 try {
                     int i = Integer.parseInt(part);
                     if (i >= 1 && i <= max) set.add(i);
