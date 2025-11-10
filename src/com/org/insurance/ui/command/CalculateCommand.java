@@ -3,6 +3,7 @@ package com.org.insurance.ui.command;
 import com.org.insurance.domain.Derivative;
 import com.org.insurance.domain.Obligation;
 import com.org.insurance.service.InsuranceCalculator;
+import com.org.insurance.ui.ConsolePrinter;
 
 import java.util.List;
 import java.util.Scanner;
@@ -61,11 +62,8 @@ public class CalculateCommand implements Command {
             System.out.println("Список деривативів порожній.");
             return null;
         }
-        for (int i = 0; i < list.size(); i++) {
-            var d = list.get(i);
-            System.out.printf("%d) %s (%s)%n", i + 1,
-                    d.getName() != null ? d.getName() : "без назви", d.getId());
-        }
+        System.out.println("Оберіть деривативу:");
+        ConsolePrinter.printDerivatives(list);
         System.out.print("Оберіть № деривативу: ");
         int idx = readInt(in);
         if (idx < 1 || idx > list.size()) {
@@ -81,11 +79,8 @@ public class CalculateCommand implements Command {
             System.out.println("У деривативі немає облігацій.");
             return null;
         }
-        for (int i = 0; i < obs.size(); i++) {
-            var o = obs.get(i);
-            System.out.printf("%d) %s (%s)%n", i + 1,
-                    o.getName() != null ? o.getName() : o.getClass().getSimpleName(), o.getId());
-        }
+        System.out.println("Оберіть облігацію:");
+        ConsolePrinter.printObligationsOf(derivative);
         System.out.print("Оберіть № облігації: ");
         int idx = readInt(in);
         if (idx < 1 || idx > obs.size()) {

@@ -2,6 +2,7 @@ package com.org.insurance.ui.command;
 
 import com.org.insurance.domain.Derivative;
 import com.org.insurance.domain.Obligation;
+import com.org.insurance.ui.ConsolePrinter;
 
 import java.util.*;
 import java.util.Scanner;
@@ -22,14 +23,8 @@ public class RemoveObligationCommand implements Command {
             return;
         }
 
-        // 1) показати всі облігації
         System.out.println("Облігації деривативи:");
-        for (int i = 0; i < obs.size(); i++) {
-            Obligation o = obs.get(i);
-            String name = (o.getName() != null && !o.getName().isBlank()) ? o.getName() : "—";
-            String type = o.getClass().getSimpleName();
-            System.out.printf("%2d) %-22s  %-14s  (%s)%n", i + 1, name, type, o.getId());
-        }
+        ConsolePrinter.printObligationsOf(d);
 
         System.out.println("""
                 Введіть №(и) або UUID для видалення:
@@ -105,10 +100,8 @@ public class RemoveObligationCommand implements Command {
             return null;
         }
         System.out.println("Оберіть деривативу:");
-        for (int i = 0; i < list.size(); i++) {
-            var d = list.get(i);
-            System.out.printf("%d) %s (%s)%n", i + 1, d.getName() != null ? d.getName() : "без назви", d.getId());
-        }
+        // друк списку деривативів (STAGE 1)
+        ConsolePrinter.printDerivatives(list);
         System.out.print("> №: ");
         try {
             int idx = Integer.parseInt(in.nextLine().trim());
@@ -140,7 +133,7 @@ public class RemoveObligationCommand implements Command {
             if (token.isEmpty()) continue;
 
             int dash = token.indexOf('-');
-            if (dash > 0 && dash < token.length()-1) {
+            if (dash > 0 && dash < token.length() - 1) {
                 String left = token.substring(0, dash).trim();
                 String right = token.substring(dash + 1).trim();
                 try {
@@ -164,7 +157,6 @@ public class RemoveObligationCommand implements Command {
             try {
                 sel.uuids.add(UUID.fromString(token));
             } catch (IllegalArgumentException ignored) { }
-
         }
 
         return sel;

@@ -1,6 +1,7 @@
 package com.org.insurance.ui.command;
 
 import com.org.insurance.domain.Derivative;
+import com.org.insurance.ui.ConsolePrinter;
 
 import java.util.List;
 import java.util.Scanner;
@@ -15,13 +16,7 @@ public class ShowDerivativesCommand implements Command {
         }
 
         System.out.println("Список деривативів:");
-        for (int i = 0; i < derivatives.size(); i++) {
-            Derivative d = derivatives.get(i);
-            String name = d.getName() != null ? d.getName() : "без назви";
-            int count = (d.getObligations() == null) ? 0 : d.getObligations().size();
-            System.out.printf("%2d) %s (%s) — items: %d%n",
-                    i + 1, name, d.getId(), count);
-        }
+        ConsolePrinter.printDerivativesWithObligations(derivatives);
     }
 
     @Override

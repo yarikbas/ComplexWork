@@ -12,6 +12,23 @@ public class PropertyObligation extends Obligation {
         this.setSpecificFields(in);
     }
 
+    @Override
+    public String toString() {
+        super.toString();
+        return "PropertyObligation{" +
+                "name=" + getName() +
+                ", id=" + getId() +
+                ", insuredAmount=" + getInsuredAmount() +
+                ", factor=" + getFactor() +
+                ", period=" + getPeriod() +
+                ", interestRate=" + getInterestRate() +
+                ", probability=" + getProbability() +
+                ", maxCost=" + getMaxCost() +
+                "propertyAddress='" + propertyAddress + '\'' +
+                ", propertyType='" + propertyType + '\'' +
+                '}';
+    }
+
     public PropertyObligation(String name, double insuredAmount, double factor,
                               int period, double interestRate, double probability, double maxCost,
                               String propertyAddress, String propertyType) {

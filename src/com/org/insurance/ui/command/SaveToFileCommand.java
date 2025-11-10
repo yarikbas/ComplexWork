@@ -2,8 +2,10 @@ package com.org.insurance.ui.command;
 
 import com.org.insurance.domain.Derivative;
 import com.org.insurance.io.FileManager;
+import com.org.insurance.ui.ConsolePrinter;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 public class SaveToFileCommand implements Command {
@@ -16,12 +18,10 @@ public class SaveToFileCommand implements Command {
             return;
         }
 
-        // вибір деривативу
-        for (int i = 0; i < derivatives.size(); i++) {
-            var d = derivatives.get(i);
-            System.out.printf("%d) %s (%s)%n", i + 1,
-                    d.getName() != null ? d.getName() : "без назви", d.getId());
-        }
+        // вибір деривативу (STAGE 1)
+        System.out.println("Список деривативів:");
+        ConsolePrinter.printDerivatives(derivatives);
+
         System.out.print("Оберіть № деривативу для збереження: ");
         int idx;
         try { idx = Integer.parseInt(in.nextLine().trim()); } catch (Exception e) { idx = -1; }
@@ -31,18 +31,19 @@ public class SaveToFileCommand implements Command {
         }
         Derivative chosen = derivatives.get(idx - 1);
 
-        // формат
         System.out.print("Формат (bin/txt): ");
-        String fmt = in.nextLine().trim().toLowerCase();
+        String fmt = in.nextLine().trim().toLowerCase(Locale.ROOT);
         if (!fmt.equals("bin") && !fmt.equals("txt")) {
             System.out.println("Невідомий формат. Використайте 'bin' або 'txt'.");
             return;
         }
 
-        // шлях
         System.out.print("Шлях для збереження (напр., data/derivative." + fmt + "): ");
         String path = in.nextLine().trim();
-        if (path.isEmpty()) return;
+        if (path.isEmpty()) {
+            System.out.println("Скасовано.");
+            return;
+        }
 
         if (fmt.equals("bin")) {
             fileManager.saveDerivative(chosen, path);

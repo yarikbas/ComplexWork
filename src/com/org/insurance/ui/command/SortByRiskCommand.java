@@ -3,6 +3,7 @@ package com.org.insurance.ui.command;
 import com.org.insurance.domain.Derivative;
 import com.org.insurance.domain.Obligation;
 import com.org.insurance.service.RiskComparator;
+import com.org.insurance.ui.ConsolePrinter;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,34 +25,29 @@ public class SortByRiskCommand implements Command {
 
         List<Obligation> obs = d.getObligations();
         if (obs == null || obs.isEmpty()) {
-            System.out.println("Порожньо."); return;
+            System.out.println("Порожньо.");
+            return;
         }
 
         Collections.sort(obs, comparator.reversed());
 
         System.out.println("Відсортовано (risk ↓):");
-        for (int i = 0; i < obs.size(); i++) {
-            Obligation o = obs.get(i);
-            double r = RiskComparator.riskScore(o);
-            System.out.printf("%2d) %-20s  risk=%.6f%n",
-                    i + 1, (o.getName() != null ? o.getName() : "—"), r);
-        }
+        ConsolePrinter.printObligationsOf(d);
     }
 
     private Derivative pickDerivative(Scanner in, List<Derivative> list) {
         if (list == null || list.isEmpty()) {
-            System.out.println("Немає деривативів."); return null; }
-        for (int i = 0; i < list.size(); i++) System.out.printf("%d) %s%n", i + 1, nameOf(list.get(i)));
+            System.out.println("Немає деривативів.");
+            return null;
+        }
+        System.out.println("Оберіть деривативу:");
+        ConsolePrinter.printDerivatives(list);
         System.out.print("> №: ");
         try {
             int idx = Integer.parseInt(in.nextLine().trim());
-            return (
-                    idx>=1 && idx <= list.size()) ? list.get(idx-1) : null;
-        }
-        catch (Exception e) {
+            return (idx >= 1 && idx <= list.size()) ? list.get(idx - 1) : null;
+        } catch (Exception e) {
             return null;
         }
     }
-    private static String nameOf(Derivative d){
-        return d.getName() != null ? d.getName() : "без назви"; }
 }

@@ -14,6 +14,23 @@ public class HealthObligation extends Obligation {
         this.setSpecificFields(in);
     }
 
+    @Override
+    public String toString() {
+        return "HealthObligation{" +
+                "name=" + getName() +
+                ", id=" + getId() +
+                ", insuredAmount=" + getInsuredAmount() +
+                ", factor=" + getFactor() +
+                ", period=" + getPeriod() +
+                ", interestRate=" + getInterestRate() +
+                ", probability=" + getProbability() +
+                ", maxCost=" + getMaxCost() +
+                ", coverageType='" + coverageType + '\'' +
+                ", hasPreExistingConditions=" + hasPreExistingConditions +
+                ", annualLimit=" + annualLimit +
+                '}';
+    }
+
 
     public HealthObligation(String name, double insuredAmount, double factor, int period,
                             double interestRate, double probability, double maxCost,

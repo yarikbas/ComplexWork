@@ -1,9 +1,9 @@
 package com.org.insurance.ui.command;
 
 import com.org.insurance.domain.Derivative;
+import com.org.insurance.ui.ConsolePrinter;
 
 import java.util.*;
-import java.util.Scanner;
 
 public class DeleteDerivativeCommand implements Command {
 
@@ -14,14 +14,8 @@ public class DeleteDerivativeCommand implements Command {
             return;
         }
 
-        // показати всі
         System.out.println("Список деривативів:");
-        for (int i = 0; i < derivatives.size(); i++) {
-            Derivative d = derivatives.get(i);
-            String name = d.getName() != null ? d.getName() : "без назви";
-            int count = (d.getObligations() == null) ? 0 : d.getObligations().size();
-            System.out.printf("%2d) %s (%s) — items: %d%n", i + 1, name, d.getId(), count);
-        }
+        ConsolePrinter.printDerivatives(derivatives);
 
         System.out.println("Введіть №(и) для видалення: один номер (наприклад, 3),");
         System.out.println("список через кому (1,3,5), діапазони (2-4,7), або 'all'/'*' щоб видалити все.");

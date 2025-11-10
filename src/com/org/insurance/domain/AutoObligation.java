@@ -24,6 +24,24 @@ public class AutoObligation extends Obligation {
     }
 
     @Override
+    public String toString() {
+        super.toString();
+        return "AutoObligation{" +
+                "name=" + getName() +
+                ", id=" + getId() +
+                ", insuredAmount=" + getInsuredAmount() +
+                ", factor=" + getFactor() +
+                ", period=" + getPeriod() +
+                ", interestRate=" + getInterestRate() +
+                ", probability=" + getProbability() +
+                ", maxCost=" + getMaxCost() +
+                "vehicleType='" + vehicleType + '\'' +
+                ", driverClass='" + driverClass + '\'' +
+                ", bonusMalus=" + bonusMalus +
+                '}';
+    }
+
+    @Override
     public void setSpecificFields(Scanner in) {
         System.out.print("vehicleType: ");
         String vt = in.nextLine().trim();
