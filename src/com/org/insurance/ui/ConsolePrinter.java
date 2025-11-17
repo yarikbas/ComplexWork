@@ -2,8 +2,8 @@ package com.org.insurance.ui;
 
 import com.org.insurance.domain.Derivative;
 import com.org.insurance.domain.Obligation;
-import com.org.insurance.service.InsuranceCalculator;
-import com.org.insurance.service.RiskComparator;
+import com.org.insurance.domain.InsuranceCalculator;
+import com.org.insurance.domain.RiskComparator;
 
 import java.util.Collections;
 import java.util.List;

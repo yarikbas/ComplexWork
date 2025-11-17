@@ -1,6 +1,4 @@
-package com.org.insurance.service;
-
-import com.org.insurance.domain.Obligation;
+package com.org.insurance.domain;
 
 import java.util.Comparator;
 

@@ -2,7 +2,7 @@ package com.org.insurance.ui.command;
 
 import com.org.insurance.domain.Derivative;
 import com.org.insurance.domain.Obligation;
-import com.org.insurance.service.RiskComparator;
+import com.org.insurance.domain.RiskComparator;
 import com.org.insurance.ui.ConsolePrinter;
 
 import java.util.Collections;
