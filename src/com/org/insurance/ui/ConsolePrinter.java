@@ -2,6 +2,7 @@ package com.org.insurance.ui;
 
 import com.org.insurance.domain.Derivative;
 import com.org.insurance.domain.Obligation;
+import com.org.insurance.service.InsuranceCalculator;
 import com.org.insurance.service.RiskComparator;
 
 import java.util.Collections;
@@ -11,7 +12,8 @@ import java.util.UUID;
 
 public final class ConsolePrinter {
 
-    private ConsolePrinter() {}
+    private ConsolePrinter() {
+    }
 
     public static void printDerivatives(List<Derivative> derivatives) {
         List<Derivative> list = safeList(derivatives);
@@ -97,4 +99,191 @@ public final class ConsolePrinter {
     private static String formatRisk(double r) {
         return String.format(java.util.Locale.ROOT, "%.3f", r);
     }
+
+    public static void printPriceCalculation(Obligation o, double premium) {
+        if (o == null) {
+            System.out.println("Облігацію не обрано.");
+            return;
+        }
+
+        double insuredAmount = o.getInsuredAmount();
+        double probability = o.getProbability();
+        double factor = o.getFactor();
+        int periodMonths = o.getPeriod();
+        double interestRate = o.getInterestRate();
+        double maxCost = o.getMaxCost();
+
+        double expectedLoss = insuredAmount * probability * factor;
+        double years = periodMonths / 12.0;
+        if (years < 0.0) {
+            years = 0.0;
+        }
+        double timeCoeff = 1.0 + interestRate * years;
+        double grossBeforeLimit = expectedLoss * timeCoeff;
+
+        System.out.println();
+        System.out.println("=== РОЗРАХУНОК СТРАХОВОЇ ПРЕМІЇ ДЛЯ ОБЛІГАЦІЇ ===");
+
+        String name = o.getName();
+        if (name == null || name.isBlank()) {
+            name = o.getClass().getSimpleName();
+        }
+        System.out.println("Облігація: " + name);
+        System.out.println("ID:        " + o.getId());
+        System.out.println();
+
+        System.out.printf("insuredAmount = %.2f%n", insuredAmount);
+        System.out.printf("probability   = %.6f%n", probability);
+        System.out.printf("factor        = %.6f%n", factor);
+        System.out.printf("periodMonths  = %d%n", periodMonths);
+        System.out.printf("interestRate  = %.6f%n", interestRate);
+        System.out.printf("maxCost       = %.2f%n", maxCost);
+        System.out.println();
+
+        System.out.println("expectedLoss = insuredAmount * probability * factor");
+        System.out.printf("             = %.2f * %.6f * %.6f = %.2f%n",
+                insuredAmount, probability, factor, expectedLoss);
+        System.out.println();
+
+        System.out.println("years = periodMonths / 12.0");
+        System.out.printf("      = %d / 12.0 = %.6f%n",
+                periodMonths, years);
+        System.out.println();
+
+        System.out.println("timeCoeff = 1.0 + interestRate * years");
+        System.out.printf("          = 1.0 + %.6f * %.6f = %.6f%n",
+                interestRate, years, timeCoeff);
+        System.out.println();
+
+        System.out.println("grossPremium(before limit) = expectedLoss * timeCoeff");
+        System.out.printf("                         = %.2f * %.6f = %.2f%n",
+                expectedLoss, timeCoeff, grossBeforeLimit);
+        System.out.println();
+
+        if (maxCost > 0.0) {
+            System.out.printf("maxCost = %.2f%n", maxCost);
+            if (grossBeforeLimit > maxCost) {
+                System.out.printf("Оскільки %.2f > %.2f, застосовуємо ліміт maxCost.%n",
+                        grossBeforeLimit, maxCost);
+            } else {
+                System.out.printf("Оскільки %.2f ≤ %.2f, ліміт maxCost не впливає на премію.%n",
+                        grossBeforeLimit, maxCost);
+            }
+            System.out.println();
+        }
+
+        System.out.printf("КІНЦЕВА СТРАХОВА ПРЕМІЯ (ціна сервісу) = %.2f%n", premium);
+        System.out.println("==============================================");
+        System.out.println();
+    }
+
+    public static void printPortfolioValueCalculation(Derivative d, InsuranceCalculator calculator) {
+        if (d == null) {
+            System.out.println("Дериватив не обрано.");
+            return;
+        }
+
+        if (calculator == null) {
+            System.out.println("Калькулятор не ініціалізовано.");
+            return;
+        }
+
+        java.util.List<Obligation> obligations = d.getObligations();
+        if (obligations == null || obligations.isEmpty()) {
+            System.out.println("У деривативі немає облігацій.");
+            return;
+        }
+
+        String name = d.getName();
+        if (name == null || name.isBlank()) {
+            name = "Derivative " + d.getId();
+        }
+
+        System.out.println();
+        System.out.println("=== РОЗРАХУНОК ВАРТОСТІ ПОРТФЕЛЯ ДЛЯ ДЕРИВАТИВУ ===");
+        System.out.println("Дериватив: " + name);
+        System.out.println("ID:        " + d.getId());
+        System.out.println();
+
+        double sum = 0.0;
+
+        for (int i = 0; i < obligations.size(); i++) {
+            Obligation o = obligations.get(i);
+            if (o == null) {
+                continue;
+            }
+
+            double price = calculator.calculatePriceOfService(o);
+            sum += price;
+
+            String oname = o.getName();
+            if (oname == null || oname.isBlank()) {
+                oname = o.getClass().getSimpleName();
+            }
+
+            System.out.printf("[%d] %s (ID=%s)%n", i, oname, o.getId());
+            System.out.printf("     премія = %.2f%n", price);
+            System.out.println();
+        }
+
+        System.out.printf("СУМА премій по всіх облігаціях у портфелі = %.2f%n", sum);
+        System.out.println("==============================================");
+        System.out.println();
+    }
+
+    public static void printTotalRiskCalculation(Derivative d) {
+        if (d == null) {
+            System.out.println("Дериватив не обрано.");
+            return;
+        }
+
+        java.util.List<Obligation> obligations = d.getObligations();
+        if (obligations == null || obligations.isEmpty()) {
+            System.out.println("У деривативі немає облігацій.");
+            return;
+        }
+
+        String name = d.getName();
+        if (name == null || name.isBlank()) {
+            name = "Derivative " + d.getId();
+        }
+
+        System.out.println();
+        System.out.println("=== РОЗРАХУНОК СУМАРНОГО РИЗИКУ ПОРТФЕЛЯ ===");
+        System.out.println("Дериватив: " + name);
+        System.out.println("ID:        " + d.getId());
+        System.out.println();
+
+        double totalRisk = 0.0;
+
+        for (int i = 0; i < obligations.size(); i++) {
+            Obligation o = obligations.get(i);
+            if (o == null) {
+                continue;
+            }
+
+            double insuredAmount = o.getInsuredAmount();
+            double factor        = o.getFactor();
+            double probability   = o.getProbability();
+
+            double risk = insuredAmount * factor * probability;
+            totalRisk += risk;
+
+            String oname = o.getName();
+            if (oname == null || oname.isBlank()) {
+                oname = o.getClass().getSimpleName();
+            }
+
+            System.out.printf("[%d] %s (ID=%s)%n", i, oname, o.getId());
+            System.out.printf("     risk = insuredAmount * factor * probability%n");
+            System.out.printf("          = %.2f * %.6f * %.6f = %.2f%n",
+                    insuredAmount, factor, probability, risk);
+            System.out.println();
+        }
+
+        System.out.printf("СУМАРНИЙ РИЗИК ПОРТФЕЛЯ = %.2f%n", totalRisk);
+        System.out.println("==============================================");
+        System.out.println();
+    }
+
 }

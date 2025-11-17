@@ -35,25 +35,39 @@ public class CalculateCommand implements Command {
             case 1 -> {
                 Derivative d = chooseDerivative(in, derivatives);
                 if (d == null) return;
+
                 double value = calculator.calculatePortfolioValue(d);
-                System.out.printf("Вартість портфеля: %.6f%n", value);
+
+                System.out.printf("Вартість портфеля для '%s': %.6f%n",
+                        d.getName() != null ? d.getName() : d.getId(), value);
+
+                ConsolePrinter.printPortfolioValueCalculation(d, calculator);
             }
             case 2 -> {
                 Derivative d = chooseDerivative(in, derivatives);
                 if (d == null) return;
+
                 double risk = calculator.calculateTotalRisk(d);
-                System.out.printf("Сумарний ризик: %.6f%n", risk);
+                System.out.printf("Сумарний ризик портфеля '%s': %.6f%n",
+                        d.getName() != null ? d.getName() : d.getId(), risk);
+
+                ConsolePrinter.printTotalRiskCalculation(d);
             }
             case 3 -> {
                 Derivative d = chooseDerivative(in, derivatives);
                 if (d == null) return;
                 Obligation o = chooseObligation(in, d);
                 if (o == null) return;
+
                 double price = calculator.calculatePriceOfService(o);
+
                 System.out.printf("Ціна сервісу для облігації '%s': %.6f%n",
                         o.getName() != null ? o.getName() : o.getId(), price);
+
+                ConsolePrinter.printPriceCalculation(o, price);
             }
             default -> System.out.println("Невірний вибір.");
+
         }
     }
 
@@ -91,7 +105,10 @@ public class CalculateCommand implements Command {
     }
 
     private int readInt(Scanner in) {
-        try { return Integer.parseInt(in.nextLine().trim()); }
-        catch (Exception e) { return -1; }
+        try {
+            return Integer.parseInt(in.nextLine().trim());
+        } catch (Exception e) {
+            return -1;
+        }
     }
 }
