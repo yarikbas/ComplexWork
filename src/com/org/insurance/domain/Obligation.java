@@ -1,10 +1,15 @@
 package com.org.insurance.domain;
 
+import lombok.Getter;
+
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Scanner;
 import java.util.UUID;
 
+@Getter
 public abstract class Obligation implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     protected final UUID id;
@@ -46,15 +51,6 @@ public abstract class Obligation implements Serializable {
     }
 
     public abstract void setSpecificFields(Scanner in);
-
-    public UUID getId() { return id; }
-    public String getName() { return name; }
-    public double getInsuredAmount() { return insuredAmount; }
-    public double getFactor() { return factor; }
-    public int getPeriod() { return period; }
-    public double getInterestRate() { return interestRate; }
-    public double getProbability() { return probability; }
-    public double getMaxCost() { return maxCost; }
 
     public void setName(String name) { this.name = name; }
     public void setInsuredAmount(double insuredAmount) { this.insuredAmount = insuredAmount; }

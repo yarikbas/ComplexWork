@@ -13,7 +13,6 @@ public final class RiskComparator implements Comparator<Obligation> {
 
     public static double riskScore(Obligation o) {
         if (o == null) return 0.0;
-        double score = o.getProbability() * o.getFactor() * o.getInsuredAmount();
-        return score;
+        return o.getProbability() * o.getFactor() * o.getInsuredAmount();
     }
 }

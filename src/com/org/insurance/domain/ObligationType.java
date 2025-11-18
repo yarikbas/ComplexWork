@@ -1,5 +1,8 @@
 package com.org.insurance.domain;
 
+import lombok.Getter;
+
+@Getter
 public enum ObligationType {
     AUTO("auto", true) {
         public Obligation create() { return new AutoObligation(); }
@@ -30,9 +33,6 @@ public enum ObligationType {
         this.displayName = displayName;
         this.visible = visible;
     }
-
-    public String getDisplayName() { return displayName; }
-    public boolean isVisible() { return visible; }
 
     public abstract Obligation create();
 

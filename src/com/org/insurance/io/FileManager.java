@@ -9,6 +9,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public final class FileManager {
+
+    /**
+     * Зберігає об'єкт Derivative у бінарний файл за допомогою ObjectOutputStream.
+     */
     public void saveDerivative(Derivative derivative, String filename) {
         ensureParentDir(filename);
         try (ObjectOutputStream oos =
@@ -19,22 +23,34 @@ public final class FileManager {
         }
     }
 
+    /**
+     * Завантажує об'єкт Derivative з бінарного файлу за допомогою ObjectInputStream.
+     * * Виправлення: Розбито створення потоків, щоб гарантувати закриття FileInputStream
+     * навіть у разі помилки ObjectInputStream.
+     */
     public Derivative loadDerivative(String filename) {
-        try (ObjectInputStream ois =
-                     new ObjectInputStream(new BufferedInputStream(new FileInputStream(filename)))) {
+        try (FileInputStream fis = new FileInputStream(filename); // Фізичний потік, який закривається
+             BufferedInputStream bis = new BufferedInputStream(fis);
+             ObjectInputStream ois = new ObjectInputStream(bis)) {
+
             Object obj = ois.readObject();
             if (obj instanceof Derivative d) {
                 return d;
             }
             throw new RuntimeException("Файл не містить Derivative: " + filename);
         } catch (IOException | ClassNotFoundException e) {
+            // Тут використовується власна реалізація RuntimeException, щоб не змінювати підпис методу
             throw new RuntimeException("Не вдалося завантажити файл: " + filename, e);
         }
     }
 
+    /**
+     * Експортує вміст Derivative у читабельний текстовий файл.
+     */
     public void exportToText(Derivative derivative, String filename) {
         ensureParentDir(filename);
         Path path = Path.of(filename);
+
         try (BufferedWriter w = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
             w.write("DERIVATIVE\n");
             w.write("id: " + derivative.getId() + "\n");
@@ -63,6 +79,9 @@ public final class FileManager {
         }
     }
 
+    /**
+     * Забезпечує існування батьківського каталогу для файлу.
+     */
     private static void ensureParentDir(String filename) {
         try {
             Path p = Path.of(filename).toAbsolutePath();

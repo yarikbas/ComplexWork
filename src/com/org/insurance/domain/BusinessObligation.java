@@ -1,7 +1,12 @@
 package com.org.insurance.domain;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Scanner;
 
+@Setter
+@Getter
 public class BusinessObligation extends Obligation {
 
     private String registrationNumber;
@@ -48,9 +53,4 @@ public class BusinessObligation extends Obligation {
         if (!ind.isEmpty()) this.industry = ind;
     }
 
-    public String getRegistrationNumber() { return registrationNumber; }
-    public void setRegistrationNumber(String registrationNumber) { this.registrationNumber = registrationNumber; }
-
-    public String getIndustry() { return industry; }
-    public void setIndustry(String industry) { this.industry = industry; }
 }

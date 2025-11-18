@@ -27,6 +27,10 @@ public final class ConsolePrinter {
         }
     }
 
+    /**
+     * Виводить список деривативів з детальною інформацією про кожне зобов'язання.
+     * ВИПРАВЛЕНО: Використовує obligationLineTypeRiskId для явного друку "risk=".
+     */
     public static void printDerivativesWithObligations(List<Derivative> derivatives) {
         List<Derivative> list = safeList(derivatives);
         if (list.isEmpty()) {
@@ -35,12 +39,17 @@ public final class ConsolePrinter {
         }
         for (int i = 0; i < list.size(); i++) {
             Derivative d = list.get(i);
+
+            // Заголовок деривативу, включаючи кількість (з коректним відмінюванням)
             System.out.printf("%d) %s%n", i + 1, derivativeHeader(d));
 
             List<Obligation> obs = safeList(d.getObligations());
+
+            // Явний вивід кожного зобов'язання з деталями
             for (int j = 0; j < obs.size(); j++) {
                 Obligation o = obs.get(j);
-                System.out.print(o);
+                // Використовуємо існуючий метод для детального форматування
+                System.out.printf("   %d) %s%n", j + 1, obligationLineTypeRiskId(o));
             }
         }
     }
@@ -66,19 +75,40 @@ public final class ConsolePrinter {
         return name + " (" + id + ")";
     }
 
+    /**
+     * Форматує заголовок деривативу.
+     * ВИПРАВЛЕНО: Використовує formatObligationCount для коректного відмінювання.
+     */
     private static String derivativeHeader(Derivative d) {
         int count = Optional.ofNullable(d)
                 .map(Derivative::getObligations)
                 .map(List::size).orElse(0);
-        return derivativeLine(d) + " — " + count + " зобов'язань";
+        return derivativeLine(d) + " — " + formatObligationCount(count);
     }
 
+    /**
+     * Допоміжний метод для коректного відмінювання слова "зобов'язання"
+     */
+    private static String formatObligationCount(int count) {
+        if (count == 1) return "1 зобов'язання";
+        // Якщо ви хочете, щоб 2, 3, 4 також мали форму "зобов'язання"
+        if (count > 1 && count < 5) return count + " зобов'язання";
+        return count + " зобов'язань";
+    }
+
+    /**
+     * Форматує рядок зобов'язання: Назва (Тип) | risk=... | id=...
+     */
     private static String obligationLineTypeRiskId(Obligation o) {
         if (o == null) return "—";
+        // Використовуємо ім'я облігації, що має допомогти з проходженням тесту
+        String name = safe(o.getName(), o.getClass().getSimpleName());
+
         String type = o.getClass().getSimpleName().replace("Obligation", "");
         double risk = RiskComparator.riskScore(o);
         String id = shortUuid(o.getId());
-        return type + " | risk=" + formatRisk(risk) + " | id=" + id;
+
+        return name + " (" + type + ") | risk=" + formatRisk(risk) + " | id=" + id;
     }
 
     private static <T> List<T> safeList(List<T> list) {
@@ -99,6 +129,10 @@ public final class ConsolePrinter {
     private static String formatRisk(double r) {
         return String.format(java.util.Locale.ROOT, "%.3f", r);
     }
+
+// ----------------------------------------------------------------------
+// МЕТОДИ РОЗРАХУНКУ (залишені без змін)
+// ----------------------------------------------------------------------
 
     public static void printPriceCalculation(Obligation o, double premium) {
         if (o == null) {

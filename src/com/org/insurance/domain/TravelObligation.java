@@ -1,9 +1,14 @@
 package com.org.insurance.domain;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
+@Setter
+@Getter
 public class TravelObligation extends Obligation {
 
     private String destinationCountry;
@@ -61,12 +66,4 @@ public class TravelObligation extends Obligation {
         }
     }
 
-    public String getDestinationCountry() { return destinationCountry; }
-    public void setDestinationCountry(String destinationCountry) { this.destinationCountry = destinationCountry; }
-
-    public LocalDate getTripStartDate() { return tripStartDate; }
-    public void setTripStartDate(LocalDate tripStartDate) { this.tripStartDate = tripStartDate; }
-
-    public LocalDate getTripEndDate() { return tripEndDate; }
-    public void setTripEndDate(LocalDate tripEndDate) { this.tripEndDate = tripEndDate; }
 }

@@ -1,10 +1,17 @@
 package com.org.insurance.domain;
 
+import lombok.Getter;
+import lombok.Setter;
+
+import java.io.Serial;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
+@Setter
+@Getter
 public class LifeObligation extends Obligation {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private String insuredPersonId;
@@ -61,12 +68,4 @@ public class LifeObligation extends Obligation {
         if (!ben.isEmpty()) this.beneficiaryName = ben;
     }
 
-    public String getInsuredPersonId() { return insuredPersonId; }
-    public void setInsuredPersonId(String insuredPersonId) { this.insuredPersonId = insuredPersonId; }
-
-    public LocalDate getDateOfBirth() { return dateOfBirth; }
-    public void setDateOfBirth(LocalDate dateOfBirth) { this.dateOfBirth = dateOfBirth; }
-
-    public String getBeneficiaryName() { return beneficiaryName; }
-    public void setBeneficiaryName(String beneficiaryName) { this.beneficiaryName = beneficiaryName; }
 }

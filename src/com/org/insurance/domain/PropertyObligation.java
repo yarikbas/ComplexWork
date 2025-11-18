@@ -1,7 +1,12 @@
 package com.org.insurance.domain;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Scanner;
 
+@Setter
+@Getter
 public class PropertyObligation extends Obligation {
     private String propertyAddress;
     private String propertyType;
@@ -47,9 +52,4 @@ public class PropertyObligation extends Obligation {
         if (!type.isEmpty()) this.propertyType = type;
     }
 
-    public String getPropertyAddress() { return propertyAddress; }
-    public void setPropertyAddress(String propertyAddress) { this.propertyAddress = propertyAddress; }
-
-    public String getPropertyType() { return propertyType; }
-    public void setPropertyType(String propertyType) { this.propertyType = propertyType; }
 }

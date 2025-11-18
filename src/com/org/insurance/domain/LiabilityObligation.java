@@ -1,7 +1,12 @@
 package com.org.insurance.domain;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Scanner;
 
+@Setter
+@Getter
 public class LiabilityObligation extends Obligation {
 
     private String coverageType;
@@ -48,9 +53,4 @@ public class LiabilityObligation extends Obligation {
         if (!jur.isEmpty()) this.jurisdiction = jur;
     }
 
-    public String getCoverageType() { return coverageType; }
-    public void setCoverageType(String coverageType) { this.coverageType = coverageType; }
-
-    public String getJurisdiction() { return jurisdiction; }
-    public void setJurisdiction(String jurisdiction) { this.jurisdiction = jurisdiction; }
 }

@@ -1,7 +1,12 @@
 package com.org.insurance.domain;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Scanner;
 
+@Setter
+@Getter
 public class AutoObligation extends Obligation {
 
     private String vehicleType;
@@ -57,12 +62,4 @@ public class AutoObligation extends Obligation {
         }
     }
 
-    public String getVehicleType() { return vehicleType; }
-    public void setVehicleType(String vehicleType) { this.vehicleType = vehicleType; }
-
-    public String getDriverClass() { return driverClass; }
-    public void setDriverClass(String driverClass) { this.driverClass = driverClass; }
-
-    public double getBonusMalus() { return bonusMalus; }
-    public void setBonusMalus(double bonusMalus) { this.bonusMalus = bonusMalus; }
 }
