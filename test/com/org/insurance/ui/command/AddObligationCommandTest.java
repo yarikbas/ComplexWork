@@ -20,9 +20,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AddObligationCommandTest {
 
-    private final InputStream originalIn = System.in;
-    private final PrintStream originalOut = System.out;
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+    private final PrintStream originalOut = System.out;
+    private final InputStream originalIn = System.in;
 
     @BeforeEach
     void setUp() {
@@ -31,174 +31,188 @@ class AddObligationCommandTest {
 
     @AfterEach
     void tearDown() {
-        System.setIn(originalIn);
         System.setOut(originalOut);
+        System.setIn(originalIn);
     }
 
-    /**
-     * Допоміжний метод для створення сканера, прив'язаного до System.in.
-     * Ми спочатку підміняємо System.in даними, а потім створюємо Scanner.
-     */
-    private Scanner prepareInput(String data) {
-        System.setIn(new ByteArrayInputStream(data.getBytes()));
-        return new Scanner(System.in);
+    private Scanner prepareScanner(String data) {
+        return new Scanner(new ByteArrayInputStream(data.getBytes()));
+    }
+
+    private Derivative createDerivativeWithObligationsList(String name) {
+        Derivative d = new Derivative(name);
+        d.setObligations(new ArrayList<Obligation>());
+        return d;
+    }
+
+    private Derivative createDerivativeWithNullObligations(String name) {
+        return new Derivative(name); // obligations = null
     }
 
     @Test
-    @DisplayName("getDescription повертає опис команди")
+    @DisplayName("getDescription повертає опис додавання облігації")
     void testGetDescription() {
-        AddObligationCommand command = new AddObligationCommand();
-        assertNotNull(command.getDescription());
-        assertTrue(command.getDescription().contains("Додати облігацію"));
+        AddObligationCommand cmd = new AddObligationCommand();
+        String desc = cmd.getDescription();
+
+        assertNotNull(desc);
+        assertTrue(desc.contains("Додати облігацію"));
+        assertTrue(desc.contains("оберіть деривативу"));
     }
 
     @Test
-    @DisplayName("execute: Успішне додавання облігації (Happy Path)")
-    void testExecuteSuccess() {
-        // 1. Підготовка деривативу
-        Derivative derivative = new Derivative("My Portfolio");
-        derivative.setObligations(new ArrayList<>()); // Ініціалізуємо список
-        List<Derivative> list = List.of(derivative);
+    @DisplayName("Успішне додавання облігації (список облігацій вже ініціалізований)")
+    void testAddObligationSuccessWithExistingList() {
+        // 1) Ввід для меню команди (вибір деривативи й типу облігації)
+        // ЧИТАЄТЬСЯ ЧЕРЕЗ scanner, НЕ з System.in
+        String commandInput = "1\n1\n"; // дериватива №1, тип облігації №1 (AUTO)
+        Scanner scanner = prepareScanner(commandInput);
 
-        // 2. Підготовка вводу:
-        // "1" -> Вибір деривативу №1
-        // "1" -> Вибір типу облігації №1 (AutoObligation - зазвичай перший в Enum)
-        // ... Далі йдуть дані для конструктора AutoObligation:
-        // Name -> Amount -> Factor -> Period -> Rate -> Prob -> MaxCost ->
-        // -> VehicleType -> DriverClass -> BonusMalus
-        String inputData = """
-                1
-                1
-                Tesla Insurance
-                5000
-                1.2
-                12
-                0.05
-                0.1
-                10000
-                Sedan
-                A
-                0.9
-                """;
+        // 2) Ввід для конструктора AutoObligation (через System.in)
+        // Перша лінія — назва, далі багато коректних чисел для всіх askDouble/askInt
+        StringBuilder sbObligation = new StringBuilder();
+        sbObligation.append("Test Obligation\n"); // name
 
-        Scanner scanner = prepareInput(inputData);
-        AddObligationCommand command = new AddObligationCommand();
+        // insuredAmount, factor, period, interestRate, probability, maxCost, плюс запас
+        for (int i = 0; i < 50; i++) {
+            sbObligation.append("1000\n");
+        }
 
-        // 3. Виконання
-        command.execute(scanner, list);
+        System.setIn(new ByteArrayInputStream(sbObligation.toString().getBytes()));
 
-        // 4. Перевірка
-        assertEquals(1, derivative.getObligations().size(), "Список облігацій мав збільшитись на 1");
-        Obligation added = derivative.getObligations().get(0);
-        assertEquals("Tesla Insurance", added.getName());
+        Derivative d = createDerivativeWithObligationsList("Portfolio A");
+        List<Derivative> list = List.of(d);
 
-        // Перевірка повідомлення в консолі
-        String output = outContent.toString();
-        assertTrue(output.contains("Додано облігацію типу"));
-    }
-
-    @Test
-    @DisplayName("execute: Якщо список деривативів пустий, виводиться повідомлення")
-    void testExecuteNoDerivatives() {
-        Scanner scanner = prepareInput(""); // Ввід не важливий, бо перевірка йде раніше
-        AddObligationCommand command = new AddObligationCommand();
-
-        command.execute(scanner, Collections.emptyList());
+        AddObligationCommand cmd = new AddObligationCommand();
+        cmd.execute(scanner, list);
 
         String output = outContent.toString();
-        assertTrue(output.contains("Немає дериватив"));
+
+        assertNotNull(d.getObligations(), "Список облігацій не повинен бути null");
+        assertEquals(1, d.getObligations().size(),
+                "Після успішного виконання повинна бути додана рівно одна облігація");
+
+        assertTrue(output.contains("Оберіть деривативу"),
+                "Повинно бути меню вибору деривативи");
+        assertTrue(output.contains("Оберіть тип облігації для додавання"),
+                "Повинно бути меню вибору типу облігації");
+        assertTrue(output.contains("Додано облігацію типу"),
+                "Повинно бути повідомлення про успішне додавання облігації");
+        assertTrue(output.contains("до деривативи: Portfolio A"),
+                "У фінальному повідомленні має бути вказана назва деривативи");
     }
 
     @Test
-    @DisplayName("execute: Якщо обрано неіснуючий індекс деривативу, команда переривається")
-    void testExecuteInvalidDerivativeIndex() {
-        Derivative d = new Derivative("D1");
+    @DisplayName("При null-списку облігацій Derivative ініціалізується через рефлексію і додається облігація")
+    void testAddObligationInitializesNullList() {
+        String commandInput = "1\n1\n"; // дериватива №1, тип облігації №1
+        Scanner scanner = prepareScanner(commandInput);
+
+        StringBuilder sbObligation = new StringBuilder();
+        sbObligation.append("Test Obligation B\n"); // name
+        for (int i = 0; i < 50; i++) {
+            sbObligation.append("500\n");
+        }
+        System.setIn(new ByteArrayInputStream(sbObligation.toString().getBytes()));
+
+        Derivative d = createDerivativeWithNullObligations("Portfolio B");
+        assertNull(d.getObligations(), "Перед виконанням список облігацій має бути null");
+
         List<Derivative> list = List.of(d);
 
-        // Вводимо "5" (а є тільки 1), потім ще щось (ігнорується)
-        String inputData = "5\n";
-
-        Scanner scanner = prepareInput(inputData);
-        AddObligationCommand command = new AddObligationCommand();
-
-        command.execute(scanner, list);
-
-        // Список не змінився
-        assertNull(d.getObligations()); // Список був null і залишився null (бо ми його не ініціалізували і не дійшли до додавання)
-    }
-
-    @Test
-    @DisplayName("execute: Переривання при введенні тексту замість типу облігації")
-    void testExecuteInvalidTypeInput() {
-        Derivative d = new Derivative("D1");
-        d.setObligations(new ArrayList<>());
-        List<Derivative> list = List.of(d);
-
-        // "1" (Дериватив) -> "text" (Невірний тип)
-        String inputData = "1\ntext\n";
-
-        Scanner scanner = prepareInput(inputData);
-        AddObligationCommand command = new AddObligationCommand();
-
-        command.execute(scanner, list);
+        AddObligationCommand cmd = new AddObligationCommand();
+        cmd.execute(scanner, list);
 
         String output = outContent.toString();
-        // Якщо readInt повертає -1, ObligationType.createByIndex має повернути null
-        assertTrue(output.contains("Невірний вибір типу"));
-        assertEquals(0, d.getObligations().size());
+
+        assertNotNull(d.getObligations(),
+                "Після виконання список облігацій повинен бути ініціалізований");
+        assertEquals(1, d.getObligations().size(),
+                "В новоініціалізований список має бути додано одну облігацію");
+
+        assertTrue(output.contains("Додано облігацію типу"),
+                "Повинно бути повідомлення про успішне додавання облігації");
+        assertTrue(output.contains("до деривативи: Portfolio B"),
+                "Повинна згадуватись правильна назва деривативи");
     }
 
     @Test
-    @DisplayName("execute: Автоматична ініціалізація списку зобов'язань через рефлексію (якщо він null)")
-    void testAutoInitList() {
-        // Створюємо дериватив, але НЕ робимо setObligations(new ArrayList<>())
-        // Поле obligations буде null
-        Derivative d = new Derivative("NullListDerivative");
-        List<Derivative> list = List.of(d);
+    @DisplayName("Порожній список деривативів: виводиться попередження і нічого не відбувається")
+    void testEmptyDerivativesList() {
+        String input = "1\n";
+        Scanner scanner = prepareScanner(input);
 
-        // Вводимо коректні дані для створення AutoObligation
-        String inputData = """
-                1
-                1
-                AutoTest
-                100
-                1
-                1
-                0
-                0
-                0
-                Type
-                Cls
-                1.0
-                """;
+        AddObligationCommand cmd = new AddObligationCommand();
+        cmd.execute(scanner, Collections.emptyList());
 
-        Scanner scanner = prepareInput(inputData);
-        AddObligationCommand command = new AddObligationCommand();
-
-        command.execute(scanner, list);
-
-        // Перевіряємо, що список ініціалізувався і туди додалась облігація
-        assertNotNull(d.getObligations(), "Список мав ініціалізуватись автоматично");
-        assertEquals(1, d.getObligations().size());
-        assertEquals("AutoTest", d.getObligations().get(0).getName());
+        String output = outContent.toString();
+        assertTrue(output.contains("Немає дериватив для додавання."),
+                "Користувач має побачити повідомлення, що дериватив немає");
     }
 
     @Test
-    @DisplayName("readInt повертає -1 при введенні тексту замість числа")
-    void testInvalidNumberInput() {
-        // Цей тест непрямий, ми перевіряємо поведінку через вибір деривативу
-        Derivative d = new Derivative("D1");
+    @DisplayName("Невірний номер деривативи: облігація не додається")
+    void testInvalidDerivativeIndex() {
+        String input = "5\n1\n"; // 5 — неіснуюча дериватива
+        Scanner scanner = prepareScanner(input);
+
+        Derivative d = createDerivativeWithObligationsList("Portfolio A");
         List<Derivative> list = List.of(d);
 
-        // Вводимо "abc" замість індексу деривативу
-        String inputData = "abc\n";
+        AddObligationCommand cmd = new AddObligationCommand();
+        cmd.execute(scanner, list);
 
-        Scanner scanner = prepareInput(inputData);
-        AddObligationCommand command = new AddObligationCommand();
+        String output = outContent.toString();
 
-        command.execute(scanner, list);
+        assertNotNull(d.getObligations());
+        assertTrue(d.getObligations().isEmpty(),
+                "При невірному номері деривативи облігації не повинні додаватися");
+        assertFalse(output.contains("Додано облігацію типу"),
+                "Не повинно бути повідомлення про додавання при невірному номері деривативи");
+    }
 
-        // Нічого не додалось, бо readInt повернув -1, а -1 < 1
-        assertNull(d.getObligations());
+    @Test
+    @DisplayName("Невірний вибір типу облігації: виводиться повідомлення і нічого не додається")
+    void testInvalidObligationTypeIndex() {
+        // 1 — дериватива №1, 999 — тип облігації поза межами visibleValues()
+        String input = "1\n999\n";
+        Scanner scanner = prepareScanner(input);
+
+        Derivative d = createDerivativeWithObligationsList("Portfolio A");
+        List<Derivative> list = List.of(d);
+
+        AddObligationCommand cmd = new AddObligationCommand();
+        cmd.execute(scanner, list);
+
+        String output = outContent.toString();
+
+        assertNotNull(d.getObligations());
+        assertTrue(d.getObligations().isEmpty(),
+                "При невірному виборі типу облігації список облігацій не змінюється");
+        assertTrue(output.contains("Невірний вибір типу."),
+                "Повинно бути надруковано повідомлення про невірний вибір типу");
+    }
+
+    @Test
+    @DisplayName("Некоректний ввід номера деривативи (не число) обробляється як помилка")
+    void testInvalidNumberFormatForDerivativeIndex() {
+        String input = "abc\n1\n"; // readInt поверне -1
+        Scanner scanner = prepareScanner(input);
+
+        Derivative d = createDerivativeWithObligationsList("Portfolio A");
+        List<Derivative> list = List.of(d);
+
+        AddObligationCommand cmd = new AddObligationCommand();
+        cmd.execute(scanner, list);
+
+        String output = outContent.toString();
+
+        assertNotNull(d.getObligations());
+        assertTrue(d.getObligations().isEmpty(),
+                "При некоректному форматі вводу індексу деривативи не повинно нічого додаватися");
+        assertTrue(output.contains("Оберіть деривативу"),
+                "Користувач має побачити запит на вибір деривативи");
+        assertFalse(output.contains("Додано облігацію типу"),
+                "Не повинно бути повідомлення про успішне додавання");
     }
 }
