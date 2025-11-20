@@ -123,14 +123,12 @@ class InsuranceMenuTest {
     @Test
     @DisplayName("Команди мають бути регістронезалежними (UpperCase)")
     void testCaseInsensitive() {
-        // Вводимо команду великими літерами "TESTCMD"
         String input = "TESTCMD\nEXIT\n";
         System.setIn(new ByteArrayInputStream(input.getBytes()));
 
         InsuranceMenu menu = new InsuranceMenu();
 
         MockCommand mock = new MockCommand();
-        // Реєструємо маленькими, а вводимо великими
         menu.registerCommand("testcmd", mock);
 
         menu.run();

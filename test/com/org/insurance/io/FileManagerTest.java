@@ -151,9 +151,7 @@ class FileManagerTest {
         assertTrue(content.contains("name: Report Derivative"));
         assertTrue(content.contains("Insurance A"));
         assertTrue(content.contains("insuredAmount : 500.0"));
-        assertTrue(content.contains("maxCost       : 1000.0")); // Додано для повноти перевірки
-
-        // Додаткова перевірка кількості рядків, якщо потрібно
+        assertTrue(content.contains("maxCost       : 1000.0"));
     }
 
     @Test

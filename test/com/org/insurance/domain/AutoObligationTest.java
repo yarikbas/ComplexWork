@@ -11,11 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AutoObligationTest {
 
-    // --- Helper для створення Scanner з рядка ---
     private Scanner createScanner(String input) {
-        // Використовуємо .useDelimiter("\\A") для зчитування всього вмісту,
-        // якщо Scanner використовується в режимі зчитування токенів.
-        // Але для nextLine() це не потрібно, тому просто повертаємо Scanner.
         return new Scanner(new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)));
     }
 
