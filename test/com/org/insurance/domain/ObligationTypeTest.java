@@ -132,7 +132,7 @@ class ObligationTypeTest {
         mockSystemIn();
         ObligationType[] menu = ObligationType.values();
 
-        // Пробуємо створити перший елемент (індекс 1 -> масив[0] -> AUTO)
+        // Спробуємо створити перший елемент (індекс 1 -> масив[0] -> AUTO)
         Obligation result = ObligationType.createByIndex(menu, 1);
 
         assertNotNull(result);

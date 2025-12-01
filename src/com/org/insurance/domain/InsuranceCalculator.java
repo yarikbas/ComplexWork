@@ -16,6 +16,7 @@ public final class InsuranceCalculator {
 
         double total = 0.0;
 
+        // Звичайний for без лямбда-виразів
         for (int i = 0; i < obligations.size(); i++) {
             Obligation o = obligations.get(i);
             if (o == null) {
@@ -87,25 +88,32 @@ public final class InsuranceCalculator {
         double probability = obligation.getProbability();
         double maxCost = obligation.getMaxCost();
 
+        // Якщо базові параметри некоректні або нульові — премія = 0
         if (insuredAmount <= 0.0 || probability <= 0.0 || factor <= 0.0) {
             return 0.0;
         }
 
+        // 1. Очікуваний збиток
         double expectedLoss = insuredAmount * probability * factor;
 
+        // 2. Період у роках
         double years = periodMonths / 12.0;
         if (years < 0.0) {
             years = 0.0;
         }
 
+        // 3. Коефіцієнт з урахуванням ставки та строку
         double timeCoeff = 1.0 + interestRate * years;
 
+        // 4. Брутто-премія
         double grossPremium = expectedLoss * timeCoeff;
 
+        // 5. Обмеження зверху maxCost (якщо заданий > 0)
         if (maxCost > 0.0 && grossPremium > maxCost) {
             grossPremium = maxCost;
         }
 
+        // 6. Захист від від’ємних значень
         if (grossPremium < 0.0) {
             grossPremium = 0.0;
         }

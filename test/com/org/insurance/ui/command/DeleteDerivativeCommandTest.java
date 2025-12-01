@@ -1,4 +1,4 @@
-package test.com.org.insurance.ui.command;
+package com.org.insurance.ui.command;
 
 import org.junit.jupiter.api.Test;
 
